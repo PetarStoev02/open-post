@@ -1,67 +1,152 @@
-import * as React from "react"
+"use client"
 
-import { Calendars } from "@/components/calendars"
-import { DatePicker } from "@/components/date-picker"
+import * as React from "react"
+import { Link, useLocation } from "@tanstack/react-router"
+import {
+  LayoutDashboardIcon,
+  CalendarIcon,
+  LibraryIcon,
+  BarChart3Icon,
+  UsersIcon,
+  TwitterIcon,
+  InstagramIcon,
+  LinkedinIcon,
+  PlusIcon,
+} from "lucide-react"
+
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   SidebarSeparator,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { PlusIcon } from "lucide-react"
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  calendars: [
-    {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
-    },
-    {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
-    },
-    {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
-    },
-  ],
 }
 
+const mainNavItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboardIcon,
+  },
+  {
+    title: "Calendar",
+    url: "/",
+    icon: CalendarIcon,
+  },
+  {
+    title: "Content Library",
+    url: "/content-library",
+    icon: LibraryIcon,
+  },
+  {
+    title: "Analytics",
+    url: "/analytics",
+    icon: BarChart3Icon,
+  },
+  {
+    title: "Accounts",
+    url: "/accounts",
+    icon: UsersIcon,
+  },
+]
+
+const platformItems = [
+  {
+    title: "Twitter / X",
+    url: "/platforms/twitter",
+    icon: TwitterIcon,
+  },
+  {
+    title: "Instagram",
+    url: "/platforms/instagram",
+    icon: InstagramIcon,
+  },
+  {
+    title: "LinkedIn",
+    url: "/platforms/linkedin",
+    icon: LinkedinIcon,
+  },
+]
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation()
+
   return (
-    <Sidebar {...props}>
-      <SidebarHeader className="border-sidebar-border h-16 border-b">
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader className="h-16 border-b border-sidebar-border">
         <NavUser user={data.user} />
       </SidebarHeader>
       <SidebarContent>
-        <DatePicker />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarSeparator className="mx-0" />
-        <Calendars calendars={data.calendars} />
+        <SidebarGroup>
+          <SidebarGroupLabel>Platforms</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {platformItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton>
-              <PlusIcon
-              />
-              <span>New Calendar</span>
+              <PlusIcon />
+              <span>New Post</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuButton>
+            <SidebarTrigger className="justify-start" />
+          </SidebarMenuButton>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
