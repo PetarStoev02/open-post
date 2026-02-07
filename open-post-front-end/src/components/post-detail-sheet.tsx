@@ -112,6 +112,8 @@ export function PostDetailSheet() {
   const [editMentions, setEditMentions] = React.useState<string[]>([])
   const [hashtagInput, setHashtagInput] = React.useState("")
   const [mentionInput, setMentionInput] = React.useState("")
+  const [editDate, setEditDate] = React.useState<Date | undefined>()
+  const [editTime, setEditTime] = React.useState("09:00")
 
   // Reschedule state
   const [rescheduleDate, setRescheduleDate] = React.useState<Date | undefined>()
@@ -150,6 +152,14 @@ export function PostDetailSheet() {
       setEditPlatforms(selectedPost.platforms)
       setEditHashtags(selectedPost.hashtags || [])
       setEditMentions(selectedPost.mentions || [])
+      if (selectedPost.scheduledAt) {
+        const { date, time } = formatDateForInput(selectedPost.scheduledAt)
+        setEditDate(date)
+        setEditTime(time)
+      } else {
+        setEditDate(undefined)
+        setEditTime("09:00")
+      }
     }
   }, [selectedPost, actionMode])
 
@@ -186,11 +196,22 @@ export function PostDetailSheet() {
 
   const handleSaveEdit = async () => {
     if (!selectedPost) return
+
+    let scheduledAt: string | undefined
+    if (editDate) {
+      const [hours, minutes] = editTime.split(":").map(Number)
+      const date = new Date(editDate)
+      date.setHours(hours, minutes, 0, 0)
+      const pad = (n: number) => n.toString().padStart(2, "0")
+      scheduledAt = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(hours)}:${pad(minutes)}:00`
+    }
+
     const input: UpdatePostInput = {
       content: editContent,
       platforms: editPlatforms,
       hashtags: editHashtags,
       mentions: editMentions,
+      scheduledAt,
     }
     await updatePost({ variables: { id: selectedPost.id, input } })
   }
@@ -325,6 +346,10 @@ export function PostDetailSheet() {
                 setContent={setEditContent}
                 platforms={editPlatforms}
                 togglePlatform={togglePlatform}
+                scheduledDate={editDate}
+                setScheduledDate={setEditDate}
+                scheduledTime={editTime}
+                setScheduledTime={setEditTime}
                 hashtags={editHashtags}
                 setHashtags={setEditHashtags}
                 hashtagInput={hashtagInput}
@@ -541,6 +566,10 @@ interface EditModeProps {
   setContent: (content: string) => void
   platforms: Platform[]
   togglePlatform: (platform: Platform) => void
+  scheduledDate: Date | undefined
+  setScheduledDate: (date: Date | undefined) => void
+  scheduledTime: string
+  setScheduledTime: (time: string) => void
   hashtags: string[]
   setHashtags: (hashtags: string[]) => void
   hashtagInput: string
@@ -558,6 +587,10 @@ function EditMode({
   setContent,
   platforms,
   togglePlatform,
+  scheduledDate,
+  setScheduledDate,
+  scheduledTime,
+  setScheduledTime,
   hashtags,
   setHashtags,
   hashtagInput,
@@ -609,6 +642,36 @@ function EditMode({
           rows={5}
           className="resize-none"
         />
+      </div>
+
+      {/* Schedule */}
+      <div className="space-y-2">
+        <Label className="text-xs font-medium text-muted-foreground">SCHEDULE</Label>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex-1 justify-start gap-2 font-normal">
+                <CalendarIcon className="size-4 text-muted-foreground" />
+                {scheduledDate
+                  ? scheduledDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                  : "Select date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={scheduledDate}
+                onSelect={setScheduledDate}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="time"
+            value={scheduledTime}
+            onChange={(e) => setScheduledTime(e.target.value)}
+            className="w-28"
+          />
+        </div>
       </div>
 
       {/* Hashtags */}

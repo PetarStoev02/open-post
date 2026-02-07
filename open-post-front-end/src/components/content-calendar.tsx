@@ -32,7 +32,7 @@ type PostStatus = "draft" | "scheduled" | "pending" | "published" | "cancelled" 
 
 interface CalendarPost {
   id: string
-  platform: Platform
+  platforms: Platform[]
   time: string
   content: string
   status: PostStatus
@@ -80,7 +80,9 @@ function formatTime(dateString: string): string {
   // Handle both ISO format (T separator) and Laravel format (space separator)
   const normalizedDate = dateString.replace(" ", "T")
   const date = new Date(normalizedDate)
-  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+  const hours = date.getHours().toString().padStart(2, "0")
+  const minutes = date.getMinutes().toString().padStart(2, "0")
+  return `${hours}:${minutes}`
 }
 
 function transformPlatform(platform: APIPlatform): Platform {
@@ -162,35 +164,47 @@ function formatMonth(date: Date): string {
 
 function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; compact?: boolean; onDuplicate?: () => void }) {
   const { openPost, editPost, reschedulePost, deletePost } = usePostActions()
-  const PlatformIcon = platformIcons[post.platform]
   const statusStyle = statusStyles[post.status]
 
   if (compact) {
     return (
       <button
         onClick={() => openPost(post.fullPost)}
-        className="flex w-full items-center gap-1.5 rounded border bg-card px-2 py-1 text-xs text-left hover:bg-muted/50 transition-colors"
+        className="flex w-full flex-col gap-0.5 rounded border bg-card px-2 py-1.5 text-xs text-left hover:bg-muted/50 transition-colors"
       >
-        <PlatformIcon className={cn("size-3", platformColors[post.platform])} />
-        <span className="truncate">{post.time}</span>
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            {post.platforms.map((platform) => {
+              const Icon = platformIcons[platform]
+              return <Icon key={platform} className={cn("size-3", platformColors[platform])} />
+            })}
+          </div>
+          <span className="text-muted-foreground">{post.time}</span>
+        </div>
+        <span className="line-clamp-2 text-[11px] leading-tight">{post.content}</span>
       </button>
     )
   }
 
   return (
-    <div className="rounded-lg border bg-card p-3 shadow-sm">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="rounded-lg border bg-card p-2.5 shadow-sm">
+      <div className="mb-1.5 flex items-start justify-between gap-1">
         <button
           onClick={() => openPost(post.fullPost)}
-          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity"
+          className="flex items-center gap-1.5 hover:opacity-70 transition-opacity min-w-0"
         >
-          <PlatformIcon className={cn("size-3.5", platformColors[post.platform])} />
-          <span className="text-xs text-muted-foreground">{post.time}</span>
+          <div className="flex items-center gap-1 shrink-0">
+            {post.platforms.map((platform) => {
+              const Icon = platformIcons[platform]
+              return <Icon key={platform} className={cn("size-3.5", platformColors[platform])} />
+            })}
+          </div>
+          <span className="text-[11px] text-muted-foreground whitespace-nowrap">{post.time}</span>
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-6">
-              <MoreHorizontalIcon className="size-3.5" />
+            <Button variant="ghost" size="icon" className="size-5 shrink-0">
+              <MoreHorizontalIcon className="size-3" />
               <span className="sr-only">More options</span>
             </Button>
           </DropdownMenuTrigger>
@@ -209,43 +223,102 @@ function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; 
       </div>
       <button
         onClick={() => openPost(post.fullPost)}
-        className="mb-2 line-clamp-3 text-sm text-left w-full hover:opacity-70 transition-opacity"
+        className="mb-1.5 text-xs text-left w-full hover:opacity-70 transition-opacity break-words line-clamp-4"
       >
         {post.content}
       </button>
-      <Badge variant="outline" className={cn("text-xs border", statusStyle.className)}>
+      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 border", statusStyle.className)}>
         {statusStyle.label}
       </Badge>
     </div>
   )
 }
 
+// Timeline spans full 24 hours (12 AM to 12 AM)
+const timelineHours = Array.from({ length: 25 }, (_, i) => i) // 0-24 for grid lines
+const TIMELINE_START_HOUR = 0
+const TIMELINE_HOURS_COUNT = 24
+
+function getHourFromTime(timeString: string | null | undefined): number {
+  if (!timeString) return 8 // default to 8 AM
+  const normalizedDate = timeString.replace(" ", "T")
+  const date = new Date(normalizedDate)
+  return date.getHours() + date.getMinutes() / 60
+}
+
 function WeekDayColumn({ day, dayName, onAddPost, onDuplicate }: { day: DayData; dayName: string; onAddPost: (date: Date) => void; onDuplicate: (post: Post) => void }) {
   return (
-    <div className="group flex flex-1 flex-col border-r last:border-r-0">
+    <div className="group flex flex-1 flex-col border-r last:border-r-0 min-w-[140px]">
       <div
         className={cn(
-          "flex h-14 flex-col items-center justify-center border-b px-2 py-1",
+          "flex h-14 flex-col items-center justify-center border-b px-2 py-1 sticky top-0 bg-background z-10",
           day.isToday && "bg-primary text-primary-foreground"
         )}
       >
         <span className="text-xs font-medium">{dayName}</span>
         <span className="text-lg font-semibold">{day.dayNumber}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-2">
-        {day.posts.map((post) => (
-          <PostCard key={post.id} post={post} onDuplicate={() => onDuplicate(post.fullPost)} />
+      <div className="relative min-h-[1200px]">
+        {/* Hour grid lines - 24 hours + extra row at bottom */}
+        {timelineHours.map((hour) => (
+          <div
+            key={hour}
+            className="absolute left-0 right-0 border-t border-muted/30"
+            style={{ top: `${(hour / 25) * 100}%` }}
+          />
         ))}
+        {/* Bottom border for the extra row */}
+        <div
+          className="absolute left-0 right-0 border-t border-muted/30"
+          style={{ top: '100%' }}
+        />
+        {/* Posts positioned by time */}
+        {day.posts.map((post) => {
+          const hour = getHourFromTime(post.fullPost.scheduledAt)
+          const topPercent = (hour / 25) * 100
+          return (
+            <div
+              key={post.id}
+              className="absolute left-1 right-1 z-10"
+              style={{ top: `${topPercent}%` }}
+            >
+              <PostCard post={post} onDuplicate={() => onDuplicate(post.fullPost)} />
+            </div>
+          )
+        })}
+        {/* Add post button on hover */}
         <button
           onClick={() => onAddPost(day.date)}
           className={cn(
-            "flex h-16 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-transparent text-muted-foreground transition-all",
+            "absolute bottom-2 left-1 right-1 flex h-10 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-transparent text-muted-foreground transition-all z-20",
             "opacity-0 group-hover:opacity-100 hover:border-muted-foreground/50 hover:bg-muted/50"
           )}
         >
           <PlusIcon className="size-4" />
           <span className="text-xs">Add post</span>
         </button>
+      </div>
+    </div>
+  )
+}
+
+function TimelineColumn() {
+  return (
+    <div className="flex flex-col w-20 border-r bg-muted/20 shrink-0">
+      <div className="h-14 border-b sticky top-0 bg-muted/20 z-10" />
+      <div className="relative min-h-[1200px]">
+        {/* Hour labels 0-24 */}
+        {timelineHours.map((hour) => (
+          <div
+            key={hour}
+            className="absolute left-0 right-0 flex items-start justify-end pr-3 -translate-y-2"
+            style={{ top: `${(hour / 25) * 100}%` }}
+          >
+            <span className="text-xs text-muted-foreground font-medium">
+              {hour.toString().padStart(2, "0")}:00
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -358,7 +431,7 @@ export function ContentCalendar() {
         const dateKey = post.scheduledAt.split(/[T ]/)[0]
         const calendarPost: CalendarPost = {
           id: post.id,
-          platform: transformPlatform(post.platforms[0]),
+          platforms: post.platforms.map(transformPlatform),
           time: formatTime(post.scheduledAt),
           content: post.content,
           status: transformStatus(post.status),
@@ -369,6 +442,15 @@ export function ContentCalendar() {
           map[dateKey] = []
         }
         map[dateKey].push(calendarPost)
+      }
+
+      // Sort posts by time within each day (earliest first)
+      for (const dateKey of Object.keys(map)) {
+        map[dateKey].sort((a, b) => {
+          const timeA = a.fullPost.scheduledAt ? new Date(a.fullPost.scheduledAt.replace(' ', 'T')).getTime() : 0
+          const timeB = b.fullPost.scheduledAt ? new Date(b.fullPost.scheduledAt.replace(' ', 'T')).getTime() : 0
+          return timeA - timeB
+        })
       }
     }
 
@@ -456,6 +538,7 @@ export function ContentCalendar() {
       <div className="flex flex-1 flex-col overflow-auto">
         {view === "week" ? (
           <div className="flex min-w-[900px] flex-1 border-b">
+            <TimelineColumn />
             {weekDays.map((day, index) => (
               <WeekDayColumn key={day.date.toISOString()} day={day} dayName={dayNames[index]} onAddPost={(date) => openSheet(date)} onDuplicate={handleDuplicate} />
             ))}
