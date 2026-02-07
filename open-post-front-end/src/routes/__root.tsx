@@ -39,7 +39,7 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootLayout() {
+const RootLayout = () => {
   return (
     <ApolloProvider client={apolloClient}>
       <CreatePostProvider>
@@ -58,7 +58,7 @@ function RootLayout() {
   )
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+const RootDocument = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <head>

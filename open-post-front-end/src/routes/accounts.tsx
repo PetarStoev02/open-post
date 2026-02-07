@@ -7,7 +7,7 @@ export const Route = createFileRoute("/accounts")({
   component: AccountsPage,
 })
 
-function AccountsPage() {
+const AccountsPage = () => {
   return (
     <EmptyState
       icon={<UsersIcon className="size-8" />}

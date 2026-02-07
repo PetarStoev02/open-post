@@ -3,9 +3,8 @@ import { persist } from 'zustand/middleware'
 
 type CalendarView = 'week' | 'month'
 
-interface CalendarState {
+type CalendarState = {
   view: CalendarView
-  // Store date as ISO string for serialization
   currentDate: string
   setView: (view: CalendarView) => void
   setCurrentDate: (date: Date) => void
@@ -45,8 +44,6 @@ export const useCalendarStore = create<CalendarState>()(
         set({ currentDate: date.toISOString() })
       },
     }),
-    {
-      name: 'calendar-storage',
-    }
+    { name: 'calendar-storage' }
   )
 )

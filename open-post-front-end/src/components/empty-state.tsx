@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface EmptyStateProps {
+type EmptyStateProps = {
   icon: React.ReactNode
   title: string
   description: string
@@ -9,13 +9,13 @@ interface EmptyStateProps {
   className?: string
 }
 
-export function EmptyState({
+export const EmptyState = ({
   icon,
   title,
   description,
   action,
   className,
-}: EmptyStateProps) {
+}: EmptyStateProps) => {
   return (
     <div
       className={cn(

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/content-library")({
   component: ContentLibraryPage,
 })
 
-function ContentLibraryPage() {
+const ContentLibraryPage = () => {
   return (
     <EmptyState
       icon={<LibraryIcon className="size-8" />}

@@ -6,7 +6,7 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 })
 
-function DashboardPage() {
+const DashboardPage = () => {
   return (
     <EmptyState
       icon={<LayoutDashboardIcon className="size-8" />}

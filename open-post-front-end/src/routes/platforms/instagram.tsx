@@ -7,7 +7,7 @@ export const Route = createFileRoute("/platforms/instagram")({
   component: InstagramPage,
 })
 
-function InstagramPage() {
+const InstagramPage = () => {
   return (
     <EmptyState
       icon={<InstagramIcon className="size-8" />}

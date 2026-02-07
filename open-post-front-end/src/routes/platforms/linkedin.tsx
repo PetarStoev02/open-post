@@ -7,7 +7,7 @@ export const Route = createFileRoute("/platforms/linkedin")({
   component: LinkedinPage,
 })
 
-function LinkedinPage() {
+const LinkedinPage = () => {
   return (
     <EmptyState
       icon={<LinkedinIcon className="size-8" />}

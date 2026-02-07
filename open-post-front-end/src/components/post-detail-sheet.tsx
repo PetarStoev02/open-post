@@ -79,7 +79,7 @@ const statusStyles: Record<string, { label: string; className: string }> = {
   CANCELLED: { label: "Cancelled", className: "bg-gray-100 text-gray-500 hover:bg-gray-200 border-gray-200" },
 }
 
-function formatDateTime(dateString: string): string {
+const formatDateTime = (dateString: string): string => {
   const normalizedDate = dateString.replace(" ", "T")
   const date = new Date(normalizedDate)
   return date.toLocaleString("en-US", {
@@ -93,7 +93,7 @@ function formatDateTime(dateString: string): string {
   })
 }
 
-function formatDateForInput(dateString: string): { date: Date; time: string } {
+const formatDateForInput = (dateString: string): { date: Date; time: string } => {
   const normalizedDate = dateString.replace(" ", "T")
   const date = new Date(normalizedDate)
   const hours = String(date.getHours()).padStart(2, "0")
@@ -101,7 +101,7 @@ function formatDateForInput(dateString: string): { date: Date; time: string } {
   return { date, time: `${hours}:${minutes}` }
 }
 
-export function PostDetailSheet() {
+export const PostDetailSheet = () => {
   const { selectedPost, actionMode, closePost, setActionMode } = usePostActions()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
@@ -481,7 +481,7 @@ export function PostDetailSheet() {
   )
 }
 
-function ViewMode({ post }: { post: Post }) {
+const ViewMode = ({ post }: { post: Post }) => {
   return (
     <div className="space-y-6">
       {/* Platforms */}
@@ -561,7 +561,7 @@ function ViewMode({ post }: { post: Post }) {
   )
 }
 
-interface EditModeProps {
+type EditModeProps = {
   content: string
   setContent: (content: string) => void
   platforms: Platform[]
@@ -582,7 +582,7 @@ interface EditModeProps {
   addMention: () => void
 }
 
-function EditMode({
+const EditMode = ({
   content,
   setContent,
   platforms,
@@ -601,7 +601,7 @@ function EditMode({
   mentionInput,
   setMentionInput,
   addMention,
-}: EditModeProps) {
+}: EditModeProps) => {
   const PLATFORM_OPTIONS: { id: Platform; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "TWITTER", label: "Twitter", icon: TwitterIcon },
     { id: "INSTAGRAM", label: "Instagram", icon: InstagramIcon },
@@ -753,14 +753,14 @@ function EditMode({
   )
 }
 
-interface RescheduleModeProps {
+type RescheduleModeProps = {
   date: Date | undefined
   setDate: (date: Date | undefined) => void
   time: string
   setTime: (time: string) => void
 }
 
-function RescheduleMode({ date, setDate, time, setTime }: RescheduleModeProps) {
+const RescheduleMode = ({ date, setDate, time, setTime }: RescheduleModeProps) => {
   return (
     <div className="space-y-5">
       <div className="space-y-2">

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-interface CreatePostContextType {
+type CreatePostContextType = {
   isOpen: boolean
   openSheet: (preselectedDate?: Date) => void
   closeSheet: () => void
@@ -11,7 +11,7 @@ interface CreatePostContextType {
 
 const CreatePostContext = React.createContext<CreatePostContextType | undefined>(undefined)
 
-export function CreatePostProvider({ children }: { children: React.ReactNode }) {
+export const CreatePostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const [preselectedDate, setPreselectedDate] = React.useState<Date | undefined>()
 
@@ -32,7 +32,7 @@ export function CreatePostProvider({ children }: { children: React.ReactNode }) 
   )
 }
 
-export function useCreatePost() {
+export const useCreatePost = () => {
   const context = React.useContext(CreatePostContext)
   if (!context) {
     throw new Error("useCreatePost must be used within CreatePostProvider")

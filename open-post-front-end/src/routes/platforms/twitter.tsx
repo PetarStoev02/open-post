@@ -7,7 +7,7 @@ export const Route = createFileRoute("/platforms/twitter")({
   component: TwitterPage,
 })
 
-function TwitterPage() {
+const TwitterPage = () => {
   return (
     <EmptyState
       icon={<TwitterIcon className="size-8" />}

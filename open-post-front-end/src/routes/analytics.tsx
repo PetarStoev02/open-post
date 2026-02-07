@@ -6,7 +6,7 @@ export const Route = createFileRoute("/analytics")({
   component: AnalyticsPage,
 })
 
-function AnalyticsPage() {
+const AnalyticsPage = () => {
   return (
     <EmptyState
       icon={<BarChart3Icon className="size-8" />}

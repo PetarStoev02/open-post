@@ -5,7 +5,7 @@ import type { Post } from "@/types/post"
 
 type ActionMode = "view" | "edit" | "reschedule" | "delete" | null
 
-interface PostActionsContextValue {
+type PostActionsContextValue = {
   selectedPost: Post | null
   actionMode: ActionMode
   openPost: (post: Post) => void
@@ -18,7 +18,7 @@ interface PostActionsContextValue {
 
 const PostActionsContext = React.createContext<PostActionsContextValue | null>(null)
 
-export function PostActionsProvider({ children }: { children: React.ReactNode }) {
+export const PostActionsProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedPost, setSelectedPost] = React.useState<Post | null>(null)
   const [actionMode, setActionMode] = React.useState<ActionMode>(null)
 
@@ -65,7 +65,7 @@ export function PostActionsProvider({ children }: { children: React.ReactNode })
   )
 }
 
-export function usePostActions() {
+export const usePostActions = () => {
   const context = React.useContext(PostActionsContext)
   if (!context) {
     throw new Error("usePostActions must be used within a PostActionsProvider")
