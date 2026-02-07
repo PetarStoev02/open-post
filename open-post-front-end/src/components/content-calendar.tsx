@@ -36,6 +36,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
+import { useCalendarStore } from "@/stores/calendar-store"
 import { GET_CALENDAR_POSTS, CREATE_POST, UPDATE_POST } from "@/graphql/operations/posts"
 import type { Platform as APIPlatform, PostStatus as APIPostStatus, GetCalendarPostsResponse, Post, CreatePostInput } from "@/types/post"
 
@@ -476,8 +477,8 @@ function MonthDayCell({ day, onAddPost, onDuplicate, draggingPostId }: { day: Da
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 export function ContentCalendar() {
-  const [currentDate, setCurrentDate] = React.useState(() => new Date())
-  const [view, setView] = React.useState<"week" | "month">("week")
+  const { view, setView, currentDate: currentDateStr, goToPrevious, goToNext } = useCalendarStore()
+  const currentDate = React.useMemo(() => new Date(currentDateStr), [currentDateStr])
   const [activePost, setActivePost] = React.useState<CalendarPost | null>(null)
   const [dropPosition, setDropPosition] = React.useState<{ x: number; y: number } | null>(null)
   const { openSheet } = useCreatePost()
@@ -698,26 +699,6 @@ export function ContentCalendar() {
   const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
     setDropPosition({ x: e.clientX, y: e.clientY })
   }, [])
-
-  const goToPrevious = () => {
-    const newDate = new Date(currentDate)
-    if (view === "week") {
-      newDate.setDate(newDate.getDate() - 7)
-    } else {
-      newDate.setMonth(newDate.getMonth() - 1)
-    }
-    setCurrentDate(newDate)
-  }
-
-  const goToNext = () => {
-    const newDate = new Date(currentDate)
-    if (view === "week") {
-      newDate.setDate(newDate.getDate() + 7)
-    } else {
-      newDate.setMonth(newDate.getMonth() + 1)
-    }
-    setCurrentDate(newDate)
-  }
 
   return (
     <div className="flex h-full flex-col">
