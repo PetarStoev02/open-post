@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // \App\Teams\UseCases\Contracts\TeamRepository::class => \App\Teams\IO\DataAccess\EloquentTeamRepository::class,
 
         // Posts Domain
-        // \App\Posts\UseCases\Contracts\PostRepository::class => \App\Posts\IO\DataAccess\EloquentPostRepository::class,
+        \App\Posts\UseCases\Contracts\PostRepository::class => \App\Posts\IO\DataAccess\EloquentPostRepository::class,
 
         // Media Domain
         // \App\Media\UseCases\Contracts\MediaRepository::class => \App\Media\IO\DataAccess\EloquentMediaRepository::class,

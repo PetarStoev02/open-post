@@ -1,10 +1,26 @@
 # ============================================
-# PHASE 1: SKELETON TYPES
+# TYPES
 # ============================================
-# These types are placeholders showing the planned API structure.
-# Full implementations will be added as each domain is built.
 
-# Note: Types like Me, User, Team, Post, Media, SocialAccount, ScheduledPost
-# will be implemented progressively in Phase 2-6.
-#
-# See README.md and the implementation plan for complete type definitions.
+"A social media post"
+type Post {
+    id: ID!
+    content: String!
+    platforms: [Platform!]!
+    status: PostStatus!
+    scheduledAt: DateTime
+    mediaUrls: [String!]!
+    hashtags: [String!]!
+    mentions: [String!]!
+    linkPreview: LinkPreview
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+"Link preview metadata"
+type LinkPreview {
+    url: String!
+    title: String
+    description: String
+    image: String
+}

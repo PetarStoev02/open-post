@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import { NavUser } from "@/components/nav-user"
+import { useCreatePost } from "@/contexts/create-post-context"
 import {
   Sidebar,
   SidebarContent,
@@ -86,6 +87,7 @@ const platformItems = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation()
+  const { openSheet } = useCreatePost()
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -137,7 +139,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
+            <SidebarMenuButton onClick={() => openSheet()}>
               <PlusIcon />
               <span>New Post</span>
             </SidebarMenuButton>

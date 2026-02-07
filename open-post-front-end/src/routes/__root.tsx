@@ -1,9 +1,13 @@
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { ApolloProvider } from '@apollo/client/react'
 
+import { apolloClient } from '@/lib/apollo-client'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { CreatePostProvider } from '@/contexts/create-post-context'
+import { CreatePostSheet } from '@/components/create-post-sheet'
 
 import appCss from '../styles.css?url'
 
@@ -35,12 +39,17 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <Outlet />
-      </SidebarInset>
-    </SidebarProvider>
+    <ApolloProvider client={apolloClient}>
+      <CreatePostProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <Outlet />
+          </SidebarInset>
+        </SidebarProvider>
+        <CreatePostSheet />
+      </CreatePostProvider>
+    </ApolloProvider>
   )
 }
 
