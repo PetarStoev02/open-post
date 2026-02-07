@@ -3,6 +3,18 @@
 import * as React from "react"
 import { useQuery, useMutation } from "@apollo/client/react"
 import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  useDraggable,
+  useDroppable,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core"
+import {
   ChevronLeftIcon,
   ChevronRightIcon,
   PlusIcon,
@@ -24,8 +36,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
-import { GET_CALENDAR_POSTS, CREATE_POST } from "@/graphql/operations/posts"
+import { GET_CALENDAR_POSTS, CREATE_POST, UPDATE_POST } from "@/graphql/operations/posts"
 import type { Platform as APIPlatform, PostStatus as APIPostStatus, GetCalendarPostsResponse, Post, CreatePostInput } from "@/types/post"
+
+interface UpdatePostResponse {
+  updatePost: Post
+}
 
 type Platform = "twitter" | "instagram" | "linkedin"
 type PostStatus = "draft" | "scheduled" | "pending" | "published" | "cancelled" | "failed"
@@ -66,6 +82,33 @@ const statusStyles: Record<PostStatus, { label: string; className: string }> = {
   published: { label: "Published", className: "bg-green-100 text-green-700 border-green-200" },
   cancelled: { label: "Cancelled", className: "bg-gray-100 text-gray-500 border-gray-200" },
   failed: { label: "Failed", className: "bg-red-100 text-red-700 border-red-200" },
+}
+
+// Helper to calculate new scheduled time from drop position in week view
+function calculateScheduledAtFromDrop(
+  dropY: number,
+  containerTop: number,
+  containerHeight: number,
+  targetDate: Date
+): string {
+  // Convert Y position to hour (0-24 scale)
+  const relativeY = dropY - containerTop
+  const percentage = Math.max(0, Math.min(relativeY / containerHeight, 1))
+  const totalMinutes = Math.round(percentage * 24 * 60)
+
+  // Round to nearest 15 minutes
+  const roundedMinutes = Math.round(totalMinutes / 15) * 15
+  const hours = Math.floor(roundedMinutes / 60)
+  const minutes = roundedMinutes % 60
+
+  // Build new datetime string
+  const year = targetDate.getFullYear()
+  const month = String(targetDate.getMonth() + 1).padStart(2, "0")
+  const day = String(targetDate.getDate()).padStart(2, "0")
+  const hourStr = String(Math.min(hours, 23)).padStart(2, "0")
+  const minStr = String(minutes % 60).padStart(2, "0")
+
+  return `${year}-${month}-${day} ${hourStr}:${minStr}:00`
 }
 
 function formatDateKey(date: Date): string {
@@ -162,15 +205,17 @@ function formatMonth(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
 }
 
-function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; compact?: boolean; onDuplicate?: () => void }) {
+function PostCard({ post, compact = false, onDuplicate, isDragOverlay = false }: { post: CalendarPost; compact?: boolean; onDuplicate?: () => void; isDragOverlay?: boolean }) {
   const { openPost, editPost, reschedulePost, deletePost } = usePostActions()
   const statusStyle = statusStyles[post.status]
 
   if (compact) {
     return (
-      <button
-        onClick={() => openPost(post.fullPost)}
-        className="flex w-full flex-col gap-0.5 rounded border bg-card px-2 py-1.5 text-xs text-left hover:bg-muted/50 transition-colors"
+      <div
+        className={cn(
+          "flex w-full flex-col gap-0.5 rounded border bg-card px-2 py-1.5 text-xs text-left transition-colors",
+          !isDragOverlay && "hover:bg-muted/50"
+        )}
       >
         <div className="flex items-center gap-1.5">
           <div className="flex items-center gap-1">
@@ -182,15 +227,18 @@ function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; 
           <span className="text-muted-foreground">{post.time}</span>
         </div>
         <span className="line-clamp-2 text-[11px] leading-tight">{post.content}</span>
-      </button>
+      </div>
     )
   }
 
   return (
-    <div className="rounded-lg border bg-card p-2.5 shadow-sm">
+    <div className={cn(
+      "rounded-lg border bg-card p-2.5 shadow-sm",
+      isDragOverlay && "shadow-lg"
+    )}>
       <div className="mb-1.5 flex items-start justify-between gap-1">
         <button
-          onClick={() => openPost(post.fullPost)}
+          onClick={() => !isDragOverlay && openPost(post.fullPost)}
           className="flex items-center gap-1.5 hover:opacity-70 transition-opacity min-w-0"
         >
           <div className="flex items-center gap-1 shrink-0">
@@ -201,28 +249,30 @@ function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; 
           </div>
           <span className="text-[11px] text-muted-foreground whitespace-nowrap">{post.time}</span>
         </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-5 shrink-0">
-              <MoreHorizontalIcon className="size-3" />
-              <span className="sr-only">More options</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => editPost(post.fullPost)}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={onDuplicate}>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => reschedulePost(post.fullPost)}>Reschedule</DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => deletePost(post.fullPost)}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {!isDragOverlay && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-5 shrink-0">
+                <MoreHorizontalIcon className="size-3" />
+                <span className="sr-only">More options</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => editPost(post.fullPost)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={onDuplicate}>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => reschedulePost(post.fullPost)}>Reschedule</DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => deletePost(post.fullPost)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
       <button
-        onClick={() => openPost(post.fullPost)}
+        onClick={() => !isDragOverlay && openPost(post.fullPost)}
         className="mb-1.5 text-xs text-left w-full hover:opacity-70 transition-opacity break-words line-clamp-4"
       >
         {post.content}
@@ -234,10 +284,44 @@ function PostCard({ post, compact = false, onDuplicate }: { post: CalendarPost; 
   )
 }
 
+// Draggable wrapper for PostCard
+function DraggablePostCard({ post, compact = false, onDuplicate, isHidden = false }: { post: CalendarPost; compact?: boolean; onDuplicate?: () => void; isHidden?: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: post.id,
+    data: {
+      post,
+      sourceDate: post.fullPost.scheduledAt,
+    },
+  })
+
+  // Hide the original card while dragging (DragOverlay shows the preview)
+  // Also hide if isHidden prop is true (during optimistic update transition)
+  const shouldHide = isDragging || isHidden
+
+  const style: React.CSSProperties = {
+    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
+    opacity: shouldHide ? 0 : 1,
+    zIndex: isDragging ? 50 : 10,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "cursor-grab",
+        isDragging && "cursor-grabbing"
+      )}
+    >
+      <PostCard post={post} compact={compact} onDuplicate={onDuplicate} />
+    </div>
+  )
+}
+
 // Timeline spans full 24 hours (12 AM to 12 AM)
 const timelineHours = Array.from({ length: 25 }, (_, i) => i) // 0-24 for grid lines
-const TIMELINE_START_HOUR = 0
-const TIMELINE_HOURS_COUNT = 24
 
 function getHourFromTime(timeString: string | null | undefined): number {
   if (!timeString) return 8 // default to 8 AM
@@ -246,7 +330,17 @@ function getHourFromTime(timeString: string | null | undefined): number {
   return date.getHours() + date.getMinutes() / 60
 }
 
-function WeekDayColumn({ day, dayName, onAddPost, onDuplicate }: { day: DayData; dayName: string; onAddPost: (date: Date) => void; onDuplicate: (post: Post) => void }) {
+interface DroppableData {
+  date: Date
+  type: "week" | "month"
+}
+
+function WeekDayColumn({ day, dayName, onAddPost, onDuplicate, onMouseMove, draggingPostId }: { day: DayData; dayName: string; onAddPost: (date: Date) => void; onDuplicate: (post: Post) => void; onMouseMove?: (e: React.MouseEvent) => void; draggingPostId?: string | null }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `week-day-${formatDateKey(day.date)}`,
+    data: { date: day.date, type: "week" } as DroppableData,
+  })
+
   return (
     <div className="group flex flex-1 flex-col border-r last:border-r-0 min-w-[140px]">
       <div
@@ -258,7 +352,14 @@ function WeekDayColumn({ day, dayName, onAddPost, onDuplicate }: { day: DayData;
         <span className="text-xs font-medium">{dayName}</span>
         <span className="text-lg font-semibold">{day.dayNumber}</span>
       </div>
-      <div className="relative min-h-[1200px]">
+      <div
+        ref={setNodeRef}
+        onMouseMove={onMouseMove}
+        className={cn(
+          "relative min-h-[1200px] transition-colors",
+          isOver && "bg-primary/5"
+        )}
+      >
         {/* Hour grid lines - 24 hours + extra row at bottom */}
         {timelineHours.map((hour) => (
           <div
@@ -272,6 +373,10 @@ function WeekDayColumn({ day, dayName, onAddPost, onDuplicate }: { day: DayData;
           className="absolute left-0 right-0 border-t border-muted/30"
           style={{ top: '100%' }}
         />
+        {/* Drop indicator when hovering */}
+        {isOver && (
+          <div className="absolute inset-0 border-2 border-dashed border-primary/50 rounded-lg pointer-events-none z-30" />
+        )}
         {/* Posts positioned by time */}
         {day.posts.map((post) => {
           const hour = getHourFromTime(post.fullPost.scheduledAt)
@@ -282,7 +387,7 @@ function WeekDayColumn({ day, dayName, onAddPost, onDuplicate }: { day: DayData;
               className="absolute left-1 right-1 z-10"
               style={{ top: `${topPercent}%` }}
             >
-              <PostCard post={post} onDuplicate={() => onDuplicate(post.fullPost)} />
+              <DraggablePostCard post={post} onDuplicate={() => onDuplicate(post.fullPost)} isHidden={post.id === draggingPostId} />
             </div>
           )
         })}
@@ -324,12 +429,19 @@ function TimelineColumn() {
   )
 }
 
-function MonthDayCell({ day, onAddPost, onDuplicate }: { day: DayData; onAddPost: (date: Date) => void; onDuplicate: (post: Post) => void }) {
+function MonthDayCell({ day, onAddPost, onDuplicate, draggingPostId }: { day: DayData; onAddPost: (date: Date) => void; onDuplicate: (post: Post) => void; draggingPostId?: string | null }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `month-day-${formatDateKey(day.date)}`,
+    data: { date: day.date, type: "month" } as DroppableData,
+  })
+
   return (
     <div
+      ref={setNodeRef}
       className={cn(
-        "group flex flex-1 flex-col border-b border-r p-2",
-        !day.isCurrentMonth && "bg-muted/30"
+        "group flex flex-1 flex-col border-b border-r p-2 transition-colors",
+        !day.isCurrentMonth && "bg-muted/30",
+        isOver && "bg-primary/10"
       )}
     >
       <div
@@ -343,7 +455,7 @@ function MonthDayCell({ day, onAddPost, onDuplicate }: { day: DayData; onAddPost
       </div>
       <div className="flex flex-1 flex-col gap-1">
         {day.posts.slice(0, 3).map((post) => (
-          <PostCard key={post.id} post={post} compact onDuplicate={() => onDuplicate(post.fullPost)} />
+          <DraggablePostCard key={post.id} post={post} compact onDuplicate={() => onDuplicate(post.fullPost)} isHidden={post.id === draggingPostId} />
         ))}
         {day.posts.length > 3 && (
           <span className="text-xs text-muted-foreground">
@@ -366,7 +478,19 @@ const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 export function ContentCalendar() {
   const [currentDate, setCurrentDate] = React.useState(() => new Date())
   const [view, setView] = React.useState<"week" | "month">("week")
+  const [activePost, setActivePost] = React.useState<CalendarPost | null>(null)
+  const [dropPosition, setDropPosition] = React.useState<{ x: number; y: number } | null>(null)
   const { openSheet } = useCreatePost()
+
+  // Configure dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor)
+  )
 
   // Calculate date range for the query
   const dateRange = React.useMemo(() => {
@@ -400,6 +524,36 @@ export function ContentCalendar() {
   const { data, loading } = useQuery<GetCalendarPostsResponse>(GET_CALENDAR_POSTS, {
     variables: dateRange,
     fetchPolicy: 'cache-and-network',
+  })
+
+  // Update post mutation with optimistic response
+  const [updatePost] = useMutation<UpdatePostResponse>(UPDATE_POST, {
+    update: (cache, { data: mutationData }) => {
+      if (!mutationData?.updatePost) return
+
+      // Read current calendar posts from cache
+      const existingData = cache.readQuery<GetCalendarPostsResponse>({
+        query: GET_CALENDAR_POSTS,
+        variables: dateRange,
+      })
+
+      if (existingData) {
+        // Update the post in cache
+        const updatedPosts = existingData.calendarPosts.map((post) =>
+          post.id === mutationData.updatePost.id ? mutationData.updatePost : post
+        )
+
+        cache.writeQuery({
+          query: GET_CALENDAR_POSTS,
+          variables: dateRange,
+          data: { calendarPosts: updatedPosts },
+        })
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to reschedule post:", error)
+      // Apollo automatically reverts optimistic update on error
+    },
   })
 
   // Duplicate post mutation
@@ -459,6 +613,91 @@ export function ContentCalendar() {
 
   const weekDays = getWeekDays(currentDate, postsMap)
   const monthDays = getMonthDays(currentDate, postsMap)
+
+  // Drag start handler
+  const handleDragStart = React.useCallback((event: DragStartEvent) => {
+    const { active } = event
+    const post = active.data.current?.post as CalendarPost | undefined
+    if (post) {
+      setActivePost(post)
+    }
+  }, [])
+
+  // Drag end handler
+  const handleDragEnd = React.useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over) {
+      // Dropped outside valid area
+      setActivePost(null)
+      return
+    }
+
+    const draggedPost = active.data.current?.post as CalendarPost | undefined
+    const targetData = over.data.current as DroppableData | undefined
+
+    if (!draggedPost || !targetData) {
+      setActivePost(null)
+      return
+    }
+
+    let newScheduledAt: string
+
+    if (targetData.type === "week" && dropPosition) {
+      // For week view, calculate exact time from drop position
+      // Use the drop position stored during mouse move with the droppable rect
+      const containerRect = over.rect
+      if (containerRect) {
+        newScheduledAt = calculateScheduledAtFromDrop(
+          dropPosition.y,
+          containerRect.top,
+          containerRect.height,
+          targetData.date
+        )
+      } else {
+        // Fallback: keep original time, change date only
+        const originalTime = draggedPost.fullPost.scheduledAt?.split(/[T ]/)[1] || "09:00:00"
+        newScheduledAt = `${formatDateKey(targetData.date)} ${originalTime}`
+      }
+    } else {
+      // Month view: keep original time, change date only
+      const originalTime = draggedPost.fullPost.scheduledAt?.split(/[T ]/)[1] || "09:00:00"
+      newScheduledAt = `${formatDateKey(targetData.date)} ${originalTime}`
+    }
+
+    // Skip if no change
+    if (newScheduledAt === draggedPost.fullPost.scheduledAt) {
+      setActivePost(null)
+      return
+    }
+
+    // Execute mutation with optimistic UI
+    updatePost({
+      variables: {
+        id: draggedPost.fullPost.id,
+        input: { scheduledAt: newScheduledAt },
+      },
+      optimisticResponse: {
+        updatePost: {
+          ...draggedPost.fullPost,
+          scheduledAt: newScheduledAt,
+        },
+      },
+    })
+
+    // Clear activePost after microtask to ensure optimistic update has applied
+    // This prevents the card from briefly appearing at the old position
+    queueMicrotask(() => {
+      setActivePost(null)
+    })
+
+    setDropPosition(null)
+  }, [updatePost, dropPosition])
+
+  // Track mouse position during drag for week view time calculation
+  const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
+    setDropPosition({ x: e.clientX, y: e.clientY })
+  }, [])
 
   const goToPrevious = () => {
     const newDate = new Date(currentDate)
@@ -534,40 +773,63 @@ export function ContentCalendar() {
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="flex flex-1 flex-col overflow-auto">
-        {view === "week" ? (
-          <div className="flex min-w-[900px] flex-1 border-b">
-            <TimelineColumn />
-            {weekDays.map((day, index) => (
-              <WeekDayColumn key={day.date.toISOString()} day={day} dayName={dayNames[index]} onAddPost={(date) => openSheet(date)} onDuplicate={handleDuplicate} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex min-w-[900px] flex-1 flex-col">
-            {/* Month header */}
-            <div className="grid grid-cols-7 border-b">
-              {dayNames.map((name) => (
-                <div
-                  key={name}
-                  className="border-r px-2 py-3 text-center text-sm font-medium text-muted-foreground last:border-r-0"
-                >
-                  {name}
-                </div>
+      {/* Calendar Grid with Drag and Drop */}
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex flex-1 flex-col overflow-auto">
+          {view === "week" ? (
+            <div className="flex min-w-[900px] flex-1 border-b">
+              <TimelineColumn />
+              {weekDays.map((day, index) => (
+                <WeekDayColumn
+                  key={day.date.toISOString()}
+                  day={day}
+                  dayName={dayNames[index]}
+                  onAddPost={(date) => openSheet(date)}
+                  onDuplicate={handleDuplicate}
+                  onMouseMove={handleMouseMove}
+                  draggingPostId={activePost?.id}
+                />
               ))}
             </div>
-            {/* Month grid - calculate rows based on number of weeks */}
-            <div
-              className="grid flex-1 grid-cols-7"
-              style={{ gridTemplateRows: `repeat(${Math.ceil(monthDays.length / 7)}, minmax(0, 1fr))` }}
-            >
-              {monthDays.map((day) => (
-                <MonthDayCell key={day.date.toISOString()} day={day} onAddPost={(date) => openSheet(date)} onDuplicate={handleDuplicate} />
-              ))}
+          ) : (
+            <div className="flex min-w-[900px] flex-1 flex-col">
+              {/* Month header */}
+              <div className="grid grid-cols-7 border-b">
+                {dayNames.map((name) => (
+                  <div
+                    key={name}
+                    className="border-r px-2 py-3 text-center text-sm font-medium text-muted-foreground last:border-r-0"
+                  >
+                    {name}
+                  </div>
+                ))}
+              </div>
+              {/* Month grid - calculate rows based on number of weeks */}
+              <div
+                className="grid flex-1 grid-cols-7"
+                style={{ gridTemplateRows: `repeat(${Math.ceil(monthDays.length / 7)}, minmax(0, 1fr))` }}
+              >
+                {monthDays.map((day) => (
+                  <MonthDayCell key={day.date.toISOString()} day={day} onAddPost={(date) => openSheet(date)} onDuplicate={handleDuplicate} draggingPostId={activePost?.id} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+
+        {/* Drag overlay - shows preview of post being dragged */}
+        <DragOverlay dropAnimation={null}>
+          {activePost && (
+            <div className="opacity-90 rotate-2">
+              <PostCard post={activePost} compact={view === "month"} isDragOverlay />
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }
