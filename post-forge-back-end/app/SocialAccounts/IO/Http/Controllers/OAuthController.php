@@ -6,28 +6,19 @@ namespace App\SocialAccounts\IO\Http\Controllers;
 
 use App\Foundation\Settings\OAuthCredentialsSettings;
 use App\SocialAccounts\Entities\Models\Workspace;
-use App\SocialAccounts\UseCases\ConnectOrUpdateSocialAccountInteractor;
+use App\SocialAccounts\Entities\SupportedOAuthProvider;
+use App\SocialAccounts\UseCases\Contracts\SocialAccountRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
-use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
+use Laravel\Socialite\Facades\Socialite;
 
 final class OAuthController
 {
-    private const ALLOWED_PROVIDERS = ['facebook', 'x', 'linkedin-openid', 'instagram', 'threads'];
-
-    private const PLATFORM_MAP = [
-        'facebook' => 'facebook',
-        'x' => 'twitter',
-        'linkedin-openid' => 'linkedin',
-        'instagram' => 'instagram',
-        'threads' => 'threads',
-    ];
-
     public function __construct(
-        private ConnectOrUpdateSocialAccountInteractor $connectInteractor,
+        private SocialAccountRepository $socialAccountRepository,
         private OAuthCredentialsSettings $oauthCredentials,
     ) {}
 
@@ -36,7 +27,7 @@ final class OAuthController
      */
     public function redirect(Request $request, string $provider): RedirectResponse
     {
-        if (! in_array($provider, self::ALLOWED_PROVIDERS, true)) {
+        if (! SupportedOAuthProvider::isValid($provider)) {
             abort(404, 'Unknown OAuth provider.');
         }
 
@@ -50,22 +41,22 @@ final class OAuthController
      */
     public function callback(Request $request, string $provider): RedirectResponse
     {
-        if (! in_array($provider, self::ALLOWED_PROVIDERS, true)) {
+        if (! SupportedOAuthProvider::isValid($provider)) {
             abort(404, 'Unknown OAuth provider.');
         }
 
         $this->applyOAuthCredentialsFromDatabase($provider);
 
         $socialiteUser = Socialite::driver($provider)->user();
-        $workspace = Workspace::query()->where('slug', 'default')->firstOrFail();
-        $platform = self::PLATFORM_MAP[$provider];
+        $workspace = Workspace::default();
+        $platform = SupportedOAuthProvider::PLATFORM_MAP[$provider];
 
         $tokenExpiresAt = null;
-        if (method_exists($socialiteUser, 'getExpiresIn') && $socialiteUser->getExpiresIn() !== null) {
-            $tokenExpiresAt = Carbon::now()->addSeconds($socialiteUser->getExpiresIn());
+        if ($socialiteUser->expiresIn !== null) {
+            $tokenExpiresAt = Carbon::now()->addSeconds($socialiteUser->expiresIn);
         }
 
-        $this->connectInteractor->execute(
+        $this->socialAccountRepository->createOrUpdate(
             workspaceId: $workspace->id,
             platform: $platform,
             platformUserId: (string) $socialiteUser->getId(),
@@ -75,28 +66,17 @@ final class OAuthController
             metadata: $this->buildMetadata($socialiteUser)
         );
 
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
-
-        return redirect($frontendUrl . '/accounts?connected=1');
+        return redirect(config('app.frontend_url') . '/accounts?connected=1');
     }
 
     private function buildMetadata(SocialiteUser $user): array
     {
-        $metadata = [];
-        if (method_exists($user, 'getName') && $user->getName() !== null) {
-            $metadata['name'] = $user->getName();
-        }
-        if (method_exists($user, 'getEmail') && $user->getEmail() !== null) {
-            $metadata['email'] = $user->getEmail();
-        }
-        if (method_exists($user, 'getAvatar') && $user->getAvatar() !== null) {
-            $metadata['avatar'] = $user->getAvatar();
-        }
-        if (method_exists($user, 'getNickname') && $user->getNickname() !== null) {
-            $metadata['username'] = $user->getNickname();
-        }
-
-        return $metadata;
+        return array_filter([
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+            'avatar' => $user->getAvatar(),
+            'username' => $user->getNickname(),
+        ]);
     }
 
     private function applyOAuthCredentialsFromDatabase(string $provider): void

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Foundation\IO\GraphQL\Queries;
 
 use App\Foundation\Settings\OAuthCredentialsSettings;
+use App\SocialAccounts\Entities\SupportedOAuthProvider;
 
 final readonly class OAuthCredentials
 {
-    private const PROVIDERS = ['facebook', 'x', 'linkedin-openid', 'instagram', 'threads'];
-
     public function __construct(
         private OAuthCredentialsSettings $oauthCredentials,
     ) {}
@@ -20,7 +19,7 @@ final readonly class OAuthCredentials
     public function __invoke(): array
     {
         $result = [];
-        foreach (self::PROVIDERS as $provider) {
+        foreach (SupportedOAuthProvider::ALL as $provider) {
             $result[] = $this->oauthCredentials->getMasked($provider);
         }
 

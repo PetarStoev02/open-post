@@ -55,7 +55,7 @@ class SocialAccount extends Model
             return false;
         }
 
-        return $this->token_expires_at->subMinutes($withinMinutes)->isPast();
+        return $this->token_expires_at->copy()->subMinutes($withinMinutes)->isPast();
     }
 
     /**

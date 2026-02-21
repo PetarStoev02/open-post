@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\SocialAccounts\Entities\Models\Workspace;
 use App\SocialAccounts\UseCases\ListSocialAccountsInteractor;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -24,7 +25,7 @@ class ListSocialAccountsTool extends Tool
      */
     public function handle(Request $request): Response|ResponseFactory
     {
-        $accounts = $this->listInteractor->executeDefaultWorkspace();
+        $accounts = $this->listInteractor->execute(Workspace::default()->id);
 
         $summary = $accounts->map(fn ($account) => [
             'id' => $account->id,

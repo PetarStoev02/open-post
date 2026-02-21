@@ -32,29 +32,19 @@ final readonly class EloquentSocialAccountRepository implements SocialAccountRep
         ?\DateTimeInterface $tokenExpiresAt = null,
         ?array $metadata = null
     ): SocialAccount {
-        $account = SocialAccount::query()
-            ->where('workspace_id', $workspaceId)
-            ->where('platform', $platform)
-            ->where('platform_user_id', $platformUserId)
-            ->first();
-
-        $attributes = [
-            'workspace_id' => $workspaceId,
-            'platform' => $platform,
-            'platform_user_id' => $platformUserId,
-            'access_token' => $accessToken,
-            'refresh_token' => $refreshToken,
-            'token_expires_at' => $tokenExpiresAt,
-            'metadata' => $metadata ?? [],
-        ];
-
-        if ($account) {
-            $account->update($attributes);
-
-            return $account->fresh();
-        }
-
-        return SocialAccount::create($attributes);
+        return SocialAccount::updateOrCreate(
+            [
+                'workspace_id' => $workspaceId,
+                'platform' => $platform,
+                'platform_user_id' => $platformUserId,
+            ],
+            [
+                'access_token' => $accessToken,
+                'refresh_token' => $refreshToken,
+                'token_expires_at' => $tokenExpiresAt,
+                'metadata' => $metadata ?? [],
+            ]
+        );
     }
 
     public function delete(string $id): bool

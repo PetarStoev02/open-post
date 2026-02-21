@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SocialAccounts\IO\GraphQL\Queries;
 
+use App\SocialAccounts\Entities\Models\Workspace;
 use App\SocialAccounts\UseCases\ListSocialAccountsInteractor;
 use Illuminate\Support\Collection;
 
@@ -20,6 +21,6 @@ final readonly class ListSocialAccounts
      */
     public function __invoke(mixed $root, array $args): Collection
     {
-        return $this->listInteractor->executeDefaultWorkspace();
+        return $this->listInteractor->execute(Workspace::default()->id);
     }
 }

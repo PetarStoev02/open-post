@@ -1,9 +1,8 @@
-"use client"
-
 import { useCallback, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@apollo/client/react"
 import { ChevronDownIcon, ChevronRightIcon, Facebook, InstagramIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Settings2Icon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
+import type { Platform } from "@/types/post"
 import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,6 +22,8 @@ import {
   GET_SOCIAL_ACCOUNTS,
   SET_OAUTH_CREDENTIALS,
 } from "@/graphql/operations/social-accounts"
+import { BACKEND_ORIGIN } from "@/lib/config"
+import { platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import {
   Collapsible,
@@ -32,10 +33,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-function getBackendOrigin(): string {
-  const url = import.meta.env.VITE_GRAPHQL_URL || "https://post-forge-back-end.test/graphql"
-  return url.replace(/\/graphql\/?$/, "") || "https://post-forge-back-end.test"
-}
 
 const OAUTH_PROVIDERS = [
   { key: "facebook", label: "Facebook", icon: Facebook, path: "/auth/facebook/redirect" },
@@ -45,22 +42,12 @@ const OAUTH_PROVIDERS = [
   { key: "linkedin-openid", label: "LinkedIn", icon: LinkedinIcon, path: "/auth/linkedin-openid/redirect" },
 ] as const
 
-type Platform = "FACEBOOK" | "TWITTER" | "LINKEDIN" | "INSTAGRAM" | "THREADS"
-
 const platformIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   FACEBOOK: Facebook,
   TWITTER: XIcon,
   LINKEDIN: LinkedinIcon,
   INSTAGRAM: InstagramIcon,
   THREADS: MessageCircle,
-}
-
-const platformLabels: Record<string, string> = {
-  FACEBOOK: "Facebook",
-  TWITTER: "Twitter / X",
-  LINKEDIN: "LinkedIn",
-  INSTAGRAM: "Instagram",
-  THREADS: "Threads",
 }
 
 /** OAuth redirect path per platform. Only platforms with reconnect support are listed. */
@@ -81,7 +68,6 @@ const OAUTH_CREDENTIAL_PROVIDERS = [
 ] as const
 
 const AccountsPage = () => {
-  const backendOrigin = getBackendOrigin()
   const { data, loading, error } = useQuery<{ socialAccounts: Array<unknown> }>(GET_SOCIAL_ACCOUNTS)
   const { data: oauthData } = useQuery<{
     oauthCredentials: Array<{
@@ -118,9 +104,9 @@ const AccountsPage = () => {
 
   const handleConnect = useCallback(
     (path: string) => {
-      window.location.href = `${backendOrigin}${path}`
+      window.location.href = `${BACKEND_ORIGIN}${path}`
     },
-    [backendOrigin]
+    []
   )
 
   const handleDisconnectConfirm = useCallback(async () => {

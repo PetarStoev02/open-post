@@ -17,13 +17,8 @@ import {
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  Facebook,
-  InstagramIcon,
-  LinkedinIcon,
-  MessageCircle,
   MoreHorizontalIcon,
   PlusIcon,
-  TwitterIcon,
 } from "lucide-react"
 import type {DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 
@@ -37,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { platformColors as sharedPlatformColors, platformIcons as sharedPlatformIcons } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
@@ -104,21 +100,13 @@ type MonthDayCellProps = {
   draggingPostId?: string | null
 }
 
-const platformIcons: Record<Platform, React.ComponentType<{ className?: string }>> = {
-  facebook: Facebook,
-  twitter: TwitterIcon,
-  instagram: InstagramIcon,
-  linkedin: LinkedinIcon,
-  threads: MessageCircle,
-}
+const platformIcons = Object.fromEntries(
+  Object.entries(sharedPlatformIcons).map(([k, v]) => [k.toLowerCase(), v])
+) as Record<Platform, React.ComponentType<{ className?: string }>>
 
-const platformColors: Record<Platform, string> = {
-  facebook: "text-[#1877F2]",
-  twitter: "text-[#000000]",
-  instagram: "text-[#E4405F]",
-  linkedin: "text-[#0A66C2]",
-  threads: "text-[#000000]",
-}
+const platformColors = Object.fromEntries(
+  Object.entries(sharedPlatformColors).map(([k, v]) => [k.toLowerCase(), v])
+) as Record<Platform, string>
 
 const statusStyles: Record<PostStatus, { label: string; className: string }> = {
   draft: { label: "Draft", className: "bg-slate-100 text-slate-700 border-slate-200" },

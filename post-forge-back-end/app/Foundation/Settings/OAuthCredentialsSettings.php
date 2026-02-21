@@ -62,10 +62,12 @@ final class OAuthCredentialsSettings
 
     private function setValue(string $key, string $value): void
     {
-        DB::table('settings')->updateOrInsert(
-            ['key' => $key],
-            ['value' => $value, 'created_at' => now(), 'updated_at' => now()]
-        );
+        $exists = DB::table('settings')->where('key', $key)->exists();
+        if ($exists) {
+            DB::table('settings')->where('key', $key)->update(['value' => $value, 'updated_at' => now()]);
+        } else {
+            DB::table('settings')->insert(['key' => $key, 'value' => $value, 'created_at' => now(), 'updated_at' => now()]);
+        }
     }
 
     private function getEncrypted(string $key): ?string
@@ -84,9 +86,11 @@ final class OAuthCredentialsSettings
     private function setEncrypted(string $key, string $value): void
     {
         $stored = $value === '' ? null : Crypt::encryptString($value);
-        DB::table('settings')->updateOrInsert(
-            ['key' => $key],
-            ['value' => $stored, 'created_at' => now(), 'updated_at' => now()]
-        );
+        $exists = DB::table('settings')->where('key', $key)->exists();
+        if ($exists) {
+            DB::table('settings')->where('key', $key)->update(['value' => $stored, 'updated_at' => now()]);
+        } else {
+            DB::table('settings')->insert(['key' => $key, 'value' => $stored, 'created_at' => now(), 'updated_at' => now()]);
+        }
     }
 }

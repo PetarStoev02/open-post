@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Foundation\IO\GraphQL\Mutations;
 
 use App\Foundation\Settings\OAuthCredentialsSettings;
+use App\SocialAccounts\Entities\SupportedOAuthProvider;
 
 final readonly class SetOAuthCredentials
 {
-    private const ALLOWED_PROVIDERS = ['facebook', 'x', 'linkedin-openid', 'instagram', 'threads'];
-
     public function __construct(
         private OAuthCredentialsSettings $oauthCredentials,
     ) {}
@@ -21,7 +20,7 @@ final readonly class SetOAuthCredentials
     public function __invoke(mixed $root, array $args): bool
     {
         $provider = $args['provider'];
-        if (! in_array($provider, self::ALLOWED_PROVIDERS, true)) {
+        if (! SupportedOAuthProvider::isValid($provider)) {
             return false;
         }
         $this->oauthCredentials->set(

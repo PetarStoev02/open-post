@@ -12,6 +12,14 @@ class Workspace extends Model
     protected $table = 'workspaces';
 
     /**
+     * Get the default workspace (MVP: single-workspace mode).
+     */
+    public static function default(): self
+    {
+        return static::query()->where('slug', 'default')->firstOrFail();
+    }
+
+    /**
      * Get the social accounts for the workspace.
      */
     public function socialAccounts(): HasMany
