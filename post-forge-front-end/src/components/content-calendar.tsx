@@ -17,8 +17,10 @@ import {
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  Facebook,
   InstagramIcon,
   LinkedinIcon,
+  MessageCircle,
   MoreHorizontalIcon,
   PlusIcon,
   TwitterIcon,
@@ -47,7 +49,7 @@ type UpdatePostResponse = {
   updatePost: Post
 }
 
-type Platform = "twitter" | "instagram" | "linkedin"
+type Platform = "facebook" | "twitter" | "instagram" | "linkedin" | "threads"
 type PostStatus = "draft" | "scheduled" | "pending" | "published" | "cancelled" | "failed"
 
 type CalendarPost = {
@@ -103,15 +105,19 @@ type MonthDayCellProps = {
 }
 
 const platformIcons: Record<Platform, React.ComponentType<{ className?: string }>> = {
+  facebook: Facebook,
   twitter: TwitterIcon,
   instagram: InstagramIcon,
   linkedin: LinkedinIcon,
+  threads: MessageCircle,
 }
 
 const platformColors: Record<Platform, string> = {
+  facebook: "text-[#1877F2]",
   twitter: "text-[#000000]",
   instagram: "text-[#E4405F]",
   linkedin: "text-[#0A66C2]",
+  threads: "text-[#000000]",
 }
 
 const statusStyles: Record<PostStatus, { label: string; className: string }> = {

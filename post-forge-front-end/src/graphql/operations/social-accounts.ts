@@ -27,3 +27,20 @@ export const DISCONNECT_SOCIAL_ACCOUNT = gql`
     disconnectSocialAccount(id: $id)
   }
 `;
+
+export const GET_OAUTH_CREDENTIALS = gql`
+  query GetOAuthCredentials {
+    oauthCredentials {
+      provider
+      clientIdSet
+      clientIdMasked
+      clientSecretSet
+    }
+  }
+`;
+
+export const SET_OAUTH_CREDENTIALS = gql`
+  mutation SetOAuthCredentials($provider: String!, $clientId: String!, $clientSecret: String!) {
+    setOAuthCredentials(provider: $provider, clientId: $clientId, clientSecret: $clientSecret)
+  }
+`;

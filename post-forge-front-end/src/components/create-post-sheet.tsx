@@ -4,8 +4,10 @@ import * as React from "react"
 import { useMutation } from "@apollo/client/react"
 import {
   CalendarIcon,
+  Facebook,
   InstagramIcon,
   LinkedinIcon,
+  MessageCircle,
   TwitterIcon,
   XIcon,
 } from "lucide-react"
@@ -31,9 +33,11 @@ import { CREATE_POST } from "@/graphql/operations/posts"
 import { cn } from "@/lib/utils"
 
 const PLATFORM_OPTIONS = [
+  { id: "FACEBOOK" as Platform, label: "Facebook", icon: Facebook, maxChars: 63206 },
   { id: "TWITTER" as Platform, label: "Twitter", icon: TwitterIcon, maxChars: 280 },
   { id: "INSTAGRAM" as Platform, label: "Instagram", icon: InstagramIcon, maxChars: 2200 },
   { id: "LINKEDIN" as Platform, label: "LinkedIn", icon: LinkedinIcon, maxChars: 3000 },
+  { id: "THREADS" as Platform, label: "Threads", icon: MessageCircle, maxChars: 500 },
 ]
 
 export const CreatePostSheet = () => {

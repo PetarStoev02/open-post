@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://post-forge-back-end.test',
+        'https://post-forge-back-end.test',
+    ],
 
     'allowed_origins_patterns' => [],
 

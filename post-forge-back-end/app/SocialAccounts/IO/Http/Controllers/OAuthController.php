@@ -4,25 +4,31 @@ declare(strict_types=1);
 
 namespace App\SocialAccounts\IO\Http\Controllers;
 
+use App\Foundation\Settings\OAuthCredentialsSettings;
 use App\SocialAccounts\Entities\Models\Workspace;
 use App\SocialAccounts\UseCases\ConnectOrUpdateSocialAccountInteractor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 
 final class OAuthController
 {
-    private const ALLOWED_PROVIDERS = ['x', 'linkedin-openid'];
+    private const ALLOWED_PROVIDERS = ['facebook', 'x', 'linkedin-openid', 'instagram', 'threads'];
 
     private const PLATFORM_MAP = [
+        'facebook' => 'facebook',
         'x' => 'twitter',
         'linkedin-openid' => 'linkedin',
+        'instagram' => 'instagram',
+        'threads' => 'threads',
     ];
 
     public function __construct(
         private ConnectOrUpdateSocialAccountInteractor $connectInteractor,
+        private OAuthCredentialsSettings $oauthCredentials,
     ) {}
 
     /**
@@ -33,6 +39,8 @@ final class OAuthController
         if (! in_array($provider, self::ALLOWED_PROVIDERS, true)) {
             abort(404, 'Unknown OAuth provider.');
         }
+
+        $this->applyOAuthCredentialsFromDatabase($provider);
 
         return Socialite::driver($provider)->redirect();
     }
@@ -45,6 +53,8 @@ final class OAuthController
         if (! in_array($provider, self::ALLOWED_PROVIDERS, true)) {
             abort(404, 'Unknown OAuth provider.');
         }
+
+        $this->applyOAuthCredentialsFromDatabase($provider);
 
         $socialiteUser = Socialite::driver($provider)->user();
         $workspace = Workspace::query()->where('slug', 'default')->firstOrFail();
@@ -87,5 +97,19 @@ final class OAuthController
         }
 
         return $metadata;
+    }
+
+    private function applyOAuthCredentialsFromDatabase(string $provider): void
+    {
+        $credentials = $this->oauthCredentials->get($provider);
+        if ($credentials === null) {
+            return;
+        }
+        if ($credentials['client_id'] !== '') {
+            Config::set('services.' . $provider . '.client_id', $credentials['client_id']);
+        }
+        if ($credentials['client_secret'] !== '') {
+            Config::set('services.' . $provider . '.client_secret', $credentials['client_secret']);
+        }
     }
 }

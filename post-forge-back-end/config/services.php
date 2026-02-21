@@ -37,9 +37,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | OAuth (Socialite) - Twitter/X and LinkedIn
+    | OAuth (Socialite) - Facebook, Twitter/X, LinkedIn
     |--------------------------------------------------------------------------
     */
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/auth/facebook/callback',
+    ],
     'x' => [
         'client_id' => env('TWITTER_CLIENT_ID'),
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
@@ -49,6 +54,16 @@ return [
         'client_id' => env('LINKEDIN_CLIENT_ID'),
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
         'redirect' => env('APP_URL') . '/auth/linkedin-openid/callback',
+    ],
+    'instagram' => [
+        'client_id' => env('INSTAGRAM_CLIENT_ID'),
+        'client_secret' => env('INSTAGRAM_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/auth/instagram/callback',
+    ],
+    'threads' => [
+        'client_id' => env('THREADS_CLIENT_ID'),
+        'client_secret' => env('THREADS_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/auth/threads/callback',
     ],
 
 ];

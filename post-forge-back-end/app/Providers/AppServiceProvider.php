@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 /**
  * Main Application Service Provider.
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Event::listen(SocialiteWasCalled::class, [\SocialiteProviders\Instagram\InstagramExtendSocialite::class, 'handle']);
+        Event::listen(SocialiteWasCalled::class, [\SocialiteProviders\Threads\ThreadsExtendSocialite::class, 'handle']);
     }
 }

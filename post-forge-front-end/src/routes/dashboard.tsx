@@ -6,10 +6,12 @@ import { useMutation, useQuery } from "@apollo/client/react"
 import {
   CalendarCheckIcon,
   ClockIcon,
+  Facebook,
   FileTextIcon,
   ImageIcon,
   InstagramIcon,
   LinkedinIcon,
+  MessageCircle,
   PencilIcon,
   PlusIcon,
   SettingsIcon,
@@ -51,15 +53,19 @@ type StatCardProps = {
 }
 
 const platformIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  FACEBOOK: Facebook,
   TWITTER: TwitterIcon,
   INSTAGRAM: InstagramIcon,
   LINKEDIN: LinkedinIcon,
+  THREADS: MessageCircle,
 }
 
 const platformColors: Record<string, string> = {
+  FACEBOOK: "text-[#1877F2]",
   TWITTER: "text-black",
   INSTAGRAM: "text-[#E4405F]",
   LINKEDIN: "text-[#0A66C2]",
+  THREADS: "text-[#000000]",
 }
 
 const StatCard = ({ title, value, icon, change, badge, subtitle }: StatCardProps) => (

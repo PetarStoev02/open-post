@@ -38,6 +38,14 @@ type DashboardStats {
     postDates: [String!]!
 }
 
+"OAuth provider credentials status (masked; for settings UI)"
+type OAuthProviderCredentials {
+    provider: String!
+    clientIdSet: Boolean!
+    clientIdMasked: String
+    clientSecretSet: Boolean!
+}
+
 "A connected social account (OAuth)"
 type SocialAccount {
     id: ID!

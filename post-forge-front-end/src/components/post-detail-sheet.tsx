@@ -7,9 +7,11 @@ import {
   CalendarClockIcon,
   CalendarIcon,
   CopyIcon,
+  Facebook,
   HashIcon,
   InstagramIcon,
   LinkedinIcon,
+  MessageCircle,
   PencilIcon,
   Trash2Icon,
   TwitterIcon,
@@ -54,21 +56,27 @@ import { CREATE_POST, DELETE_POST, UPDATE_POST } from "@/graphql/operations/post
 import { cn } from "@/lib/utils"
 
 const platformIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  FACEBOOK: Facebook,
   TWITTER: TwitterIcon,
   INSTAGRAM: InstagramIcon,
   LINKEDIN: LinkedinIcon,
+  THREADS: MessageCircle,
 }
 
 const platformColors: Record<string, string> = {
+  FACEBOOK: "text-[#1877F2]",
   TWITTER: "text-[#000000]",
   INSTAGRAM: "text-[#E4405F]",
   LINKEDIN: "text-[#0A66C2]",
+  THREADS: "text-[#000000]",
 }
 
 const platformLabels: Record<string, string> = {
+  FACEBOOK: "Facebook",
   TWITTER: "Twitter",
   INSTAGRAM: "Instagram",
   LINKEDIN: "LinkedIn",
+  THREADS: "Threads",
 }
 
 const statusStyles: Record<string, { label: string; className: string }> = {
@@ -605,9 +613,11 @@ const EditMode = ({
   addMention,
 }: EditModeProps) => {
   const PLATFORM_OPTIONS: Array<{ id: Platform; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { id: "FACEBOOK", label: "Facebook", icon: Facebook },
     { id: "TWITTER", label: "Twitter", icon: TwitterIcon },
     { id: "INSTAGRAM", label: "Instagram", icon: InstagramIcon },
     { id: "LINKEDIN", label: "LinkedIn", icon: LinkedinIcon },
+    { id: "THREADS", label: "Threads", icon: MessageCircle },
   ]
 
   return (
