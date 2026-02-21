@@ -5,8 +5,10 @@ import { Link } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@apollo/client/react"
 import {
   FileTextIcon,
+  LoaderIcon,
   PencilIcon,
   PlusIcon,
+  SendIcon,
   Trash2Icon,
 } from "lucide-react"
 
@@ -29,7 +31,7 @@ import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
-import { DELETE_POST, GET_POSTS } from "@/graphql/operations/posts"
+import { DELETE_POST, GET_POSTS, PUBLISH_POST } from "@/graphql/operations/posts"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 
 type SocialAccount = {
@@ -91,6 +93,21 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
     },
   })
 
+  const [publishPost] = useMutation(PUBLISH_POST, {
+    refetchQueries: "active",
+  })
+
+  const [publishingPostId, setPublishingPostId] = React.useState<string | null>(null)
+
+  const handlePublish = async (post: Post) => {
+    setPublishingPostId(post.id)
+    try {
+      await publishPost({ variables: { id: post.id } })
+    } finally {
+      setPublishingPostId(null)
+    }
+  }
+
   const connectedAccount = React.useMemo(() => {
     return accountsData?.socialAccounts?.find((a) => a.platform === platform) ?? null
   }, [accountsData, platform])
@@ -119,7 +136,7 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
           </div>
           <h1 className="text-2xl font-semibold">{label}</h1>
         </div>
-        <Button onClick={() => openSheet({ platforms: [platform] })}>
+        <Button onClick={() => openSheet({ platforms: [platform], locked: true })}>
           <PlusIcon className="size-4" />
           Create Post
         </Button>
@@ -183,7 +200,7 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
             title={`No ${label} posts yet`}
             description={`Create your first post for ${label} to see it here.`}
             action={
-              <Button onClick={() => openSheet({ platforms: [platform] })}>
+              <Button onClick={() => openSheet({ platforms: [platform], locked: true })}>
                 <PlusIcon className="size-4" />
                 Create Post
               </Button>
@@ -220,6 +237,22 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
                     <p className="line-clamp-2 text-sm">{post.content}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {(post.status === "DRAFT" || post.status === "SCHEDULED") && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8"
+                        disabled={publishingPostId === post.id}
+                        onClick={() => handlePublish(post)}
+                      >
+                        {publishingPostId === post.id ? (
+                          <LoaderIcon className="size-4 animate-spin" />
+                        ) : (
+                          <SendIcon className="size-4" />
+                        )}
+                        <span className="sr-only">Publish post</span>
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" className="size-8" onClick={() => editPost(post)}>
                       <PencilIcon className="size-4" />
                       <span className="sr-only">Edit post</span>

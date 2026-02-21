@@ -15,6 +15,7 @@ class Post extends Model
 
     protected $casts = [
         'platforms' => 'array',
+        'platform_post_ids' => 'array',
         'scheduled_at' => 'datetime',
         'media_urls' => 'array',
         'hashtags' => 'array',
@@ -23,6 +24,7 @@ class Post extends Model
     ];
 
     protected $attributes = [
+        'platform_post_ids' => '[]',
         'media_urls' => '[]',
         'hashtags' => '[]',
         'mentions' => '[]',

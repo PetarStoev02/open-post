@@ -45,6 +45,15 @@ export const DELETE_POST = gql`
   }
 `;
 
+export const PUBLISH_POST = gql`
+  mutation PublishPost($id: ID!) {
+    publishPost(id: $id) {
+      ...PostFields
+    }
+  }
+  ${POST_FRAGMENT}
+`;
+
 export const GET_POST = gql`
   query GetPost($id: ID!) {
     post(id: $id) {
