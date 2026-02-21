@@ -1,12 +1,19 @@
 "use client"
 
 import * as React from "react"
+import type { Platform } from "@/types/post"
+
+type OpenSheetOptions = {
+  date?: Date
+  platforms?: Platform[]
+}
 
 type CreatePostContextType = {
   isOpen: boolean
-  openSheet: (preselectedDate?: Date) => void
+  openSheet: (options?: OpenSheetOptions) => void
   closeSheet: () => void
   preselectedDate?: Date
+  preselectedPlatforms?: Platform[]
 }
 
 const CreatePostContext = React.createContext<CreatePostContextType | undefined>(undefined)
@@ -14,19 +21,22 @@ const CreatePostContext = React.createContext<CreatePostContextType | undefined>
 export const CreatePostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const [preselectedDate, setPreselectedDate] = React.useState<Date | undefined>()
+  const [preselectedPlatforms, setPreselectedPlatforms] = React.useState<Platform[] | undefined>()
 
-  const openSheet = React.useCallback((date?: Date) => {
-    setPreselectedDate(date)
+  const openSheet = React.useCallback((options?: OpenSheetOptions) => {
+    setPreselectedDate(options?.date)
+    setPreselectedPlatforms(options?.platforms)
     setIsOpen(true)
   }, [])
 
   const closeSheet = React.useCallback(() => {
     setIsOpen(false)
     setPreselectedDate(undefined)
+    setPreselectedPlatforms(undefined)
   }, [])
 
   return (
-    <CreatePostContext.Provider value={{ isOpen, openSheet, closeSheet, preselectedDate }}>
+    <CreatePostContext.Provider value={{ isOpen, openSheet, closeSheet, preselectedDate, preselectedPlatforms }}>
       {children}
     </CreatePostContext.Provider>
   )

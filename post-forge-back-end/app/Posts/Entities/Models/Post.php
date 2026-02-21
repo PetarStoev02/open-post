@@ -93,4 +93,12 @@ class Post extends Model
             ->where('status', 'scheduled')
             ->where('scheduled_at', '<=', now());
     }
+
+    /**
+     * Scope to filter posts by platform.
+     */
+    public function scopeForPlatform($query, string $platform)
+    {
+        return $query->whereJsonContains('platforms', strtolower($platform));
+    }
 }

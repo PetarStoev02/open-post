@@ -44,7 +44,7 @@ const PLATFORM_OPTIONS = (Object.keys(platformIcons) as Array<Platform>).map((id
 }))
 
 export const CreatePostSheet = () => {
-  const { isOpen, closeSheet, preselectedDate } = useCreatePost()
+  const { isOpen, closeSheet, preselectedDate, preselectedPlatforms } = useCreatePost()
 
   // Form state
   const [content, setContent] = React.useState("")
@@ -82,6 +82,13 @@ export const CreatePostSheet = () => {
       setScheduledDate(preselectedDate)
     }
   }, [preselectedDate])
+
+  // Set preselected platforms when provided
+  React.useEffect(() => {
+    if (preselectedPlatforms && preselectedPlatforms.length > 0) {
+      setSelectedPlatforms(preselectedPlatforms)
+    }
+  }, [preselectedPlatforms])
 
   const resetForm = () => {
     setContent("")
