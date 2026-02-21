@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         // \App\Media\UseCases\Contracts\MediaRepository::class => \App\Media\IO\DataAccess\EloquentMediaRepository::class,
 
         // SocialAccounts Domain
-        // \App\SocialAccounts\UseCases\Contracts\SocialAccountRepository::class => \App\SocialAccounts\IO\DataAccess\EloquentSocialAccountRepository::class,
+        \App\SocialAccounts\UseCases\Contracts\SocialAccountRepository::class => \App\SocialAccounts\IO\DataAccess\EloquentSocialAccountRepository::class,
 
         // Publishing Domain
         // \App\Publishing\UseCases\Contracts\ScheduledPostRepository::class => \App\Publishing\IO\DataAccess\EloquentScheduledPostRepository::class,

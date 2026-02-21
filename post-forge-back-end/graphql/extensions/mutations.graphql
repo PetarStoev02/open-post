@@ -12,4 +12,11 @@ type Mutation {
 
     "Delete a post"
     deletePost(id: ID!): Boolean! @field(resolver: "App\\Posts\\IO\\GraphQL\\Mutations\\DeletePost")
+
+    # ============================================
+    # SOCIAL ACCOUNTS MUTATIONS
+    # ============================================
+
+    "Disconnect a social account"
+    disconnectSocialAccount(id: ID!): Boolean! @field(resolver: "App\\SocialAccounts\\IO\\GraphQL\\Mutations\\DisconnectSocialAccount")
 }

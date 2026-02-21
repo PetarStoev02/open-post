@@ -25,4 +25,11 @@ type Query {
 
     "Get posts for a specific date"
     postsForDate(date: Date!): [Post!]! @field(resolver: "App\\Posts\\IO\\GraphQL\\Queries\\PostsForDate")
+
+    # ============================================
+    # SOCIAL ACCOUNTS QUERIES
+    # ============================================
+
+    "Get connected social accounts (default workspace for MVP)"
+    socialAccounts: [SocialAccount!]! @field(resolver: "App\\SocialAccounts\\IO\\GraphQL\\Queries\\ListSocialAccounts")
 }
