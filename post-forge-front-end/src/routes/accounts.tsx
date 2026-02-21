@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@apollo/client/react"
-import { Facebook, InstagramIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
+import { ChevronDownIcon, ChevronRightIcon, Facebook, InstagramIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Settings2Icon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/collapsible"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ChevronDownIcon, ChevronRightIcon, Settings2Icon } from "lucide-react"
 
 function getBackendOrigin(): string {
   const url = import.meta.env.VITE_GRAPHQL_URL || "https://post-forge-back-end.test/graphql"
@@ -83,7 +82,7 @@ const OAUTH_CREDENTIAL_PROVIDERS = [
 
 const AccountsPage = () => {
   const backendOrigin = getBackendOrigin()
-  const { data, loading, error } = useQuery<{ socialAccounts: unknown[] }>(GET_SOCIAL_ACCOUNTS)
+  const { data, loading, error } = useQuery<{ socialAccounts: Array<unknown> }>(GET_SOCIAL_ACCOUNTS)
   const { data: oauthData } = useQuery<{
     oauthCredentials: Array<{
       provider: string
