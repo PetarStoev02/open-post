@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EmptyState } from "@/components/empty-state"
+import { PostCardSkeleton } from "@/components/skeletons"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
@@ -314,8 +315,10 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
 
           {/* Posts List */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <p className="text-sm text-muted-foreground">Loading posts...</p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <PostCardSkeleton key={i} />
+              ))}
             </div>
           ) : !hasAnyContent ? (
             <EmptyState

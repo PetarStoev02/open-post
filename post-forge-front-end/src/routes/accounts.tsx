@@ -26,6 +26,7 @@ import {
 import { BACKEND_ORIGIN } from "@/lib/config"
 import { platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
+import { AccountsSkeleton } from "@/components/skeletons"
 import {
   Collapsible,
   CollapsibleContent,
@@ -134,11 +135,7 @@ const AccountsPage = () => {
   )
 
   if (loading) {
-    return (
-      <div className="flex h-full flex-1 items-center justify-center p-8">
-        <p className="text-sm text-muted-foreground">Loading accounts…</p>
-      </div>
-    )
+    return <AccountsSkeleton />
   }
 
   if (error) {
