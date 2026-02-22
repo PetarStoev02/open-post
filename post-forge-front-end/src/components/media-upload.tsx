@@ -5,6 +5,7 @@ import { ImagePlusIcon, Loader2Icon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { uploadMedia } from "@/lib/upload-media"
 
@@ -18,24 +19,35 @@ const ACCEPTED_TYPES = "image/jpeg,image/png,image/gif,image/webp,video/mp4,vide
 export const MediaUpload = ({ mediaUrls, onChange }: MediaUploadProps) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = React.useState(false)
+  const [uploadProgress, setUploadProgress] = React.useState(0)
   const [dragOver, setDragOver] = React.useState(false)
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
 
     setUploading(true)
+    setUploadProgress(0)
     const newUrls: Array<string> = []
+    const totalFiles = files.length
 
     try {
-      for (const file of Array.from(files)) {
-        const url = await uploadMedia(file)
+      for (let i = 0; i < totalFiles; i++) {
+        const url = await uploadMedia(files[i], {
+          onProgress: (percent) => {
+            const baseProgress = (i / totalFiles) * 100
+            const fileContribution = (percent / totalFiles)
+            setUploadProgress(Math.round(baseProgress + fileContribution))
+          },
+        })
         newUrls.push(url)
       }
+      setUploadProgress(100)
       onChange([...mediaUrls, ...newUrls])
     } catch {
       toast.error("Failed to upload one or more files.")
     } finally {
       setUploading(false)
+      setUploadProgress(0)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
@@ -103,10 +115,13 @@ export const MediaUpload = ({ mediaUrls, onChange }: MediaUploadProps) => {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInputRef.current?.click() } }}
       >
         {uploading ? (
-          <>
-            <Loader2Icon className="size-4 animate-spin" />
-            Uploading...
-          </>
+          <div className="flex w-full flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Loader2Icon className="size-4 animate-spin" />
+              <span>Uploading... {uploadProgress}%</span>
+            </div>
+            <Progress value={uploadProgress} className="h-1.5 w-full max-w-[200px]" />
+          </div>
         ) : (
           <>
             <ImagePlusIcon className="size-4" />
