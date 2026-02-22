@@ -14,6 +14,7 @@ import { CreatePostProvider } from '@/contexts/create-post-context'
 import { CreatePostSheet } from '@/components/create-post-sheet'
 import { PostActionsProvider } from '@/contexts/post-actions-context'
 import { PostDetailSheet } from '@/components/post-detail-sheet'
+import { CommandPalette } from '@/components/command-palette'
 import { PageLoader } from '@/components/ui/page-loader'
 import { Button } from '@/components/ui/button'
 
@@ -53,6 +54,7 @@ const RootLayout = () => {
             </SidebarProvider>
             <CreatePostSheet />
             <PostDetailSheet />
+            <CommandPalette />
             <Toaster />
           </PostActionsProvider>
         </CreatePostProvider>
