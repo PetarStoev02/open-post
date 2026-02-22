@@ -12,11 +12,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
-use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\User as SocialiteUser;
 
 final class OAuthController
 {
+    private const PROVIDER_SCOPES = [
+        'facebook' => ['pages_show_list', 'pages_manage_posts'],
+        'instagram' => ['instagram_business_basic'],
+        'threads' => ['threads_basic'],
+        'x' => ['users.read', 'tweet.read', 'tweet.write', 'offline.access'],
+        'linkedin-openid' => ['openid', 'profile', 'email', 'w_member_social'],
+    ];
+
     public function __construct(
         private SocialAccountRepository $socialAccountRepository,
         private OAuthCredentialsSettings $oauthCredentials,
