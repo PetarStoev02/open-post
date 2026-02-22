@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { MediaUpload } from "@/components/media-upload"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { CREATE_POST } from "@/graphql/operations/posts"
 import { platformIcons, platformLabels } from "@/lib/platforms"
@@ -53,6 +54,7 @@ export const CreatePostSheet = () => {
   const [hashtagInput, setHashtagInput] = React.useState("")
   const [mentions, setMentions] = React.useState<Array<string>>([])
   const [mentionInput, setMentionInput] = React.useState("")
+  const [mediaUrls, setMediaUrls] = React.useState<Array<string>>([])
   const [errors, setErrors] = React.useState<Record<string, string>>({})
 
   // Apollo mutation
@@ -95,6 +97,7 @@ export const CreatePostSheet = () => {
     setScheduledTime("09:00")
     setHashtags([])
     setMentions([])
+    setMediaUrls([])
     setErrors({})
     setHashtagInput("")
     setMentionInput("")
@@ -180,6 +183,7 @@ export const CreatePostSheet = () => {
       platforms: selectedPlatforms,
       status: asDraft ? "DRAFT" : "SCHEDULED",
       scheduledAt,
+      mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
       hashtags,
       mentions,
     }
@@ -268,6 +272,12 @@ export const CreatePostSheet = () => {
               {errors.content && (
                 <p className="text-xs text-destructive">{errors.content}</p>
               )}
+            </div>
+
+            {/* Media */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground">MEDIA</Label>
+              <MediaUpload mediaUrls={mediaUrls} onChange={setMediaUrls} />
             </div>
 
             {/* Schedule */}
