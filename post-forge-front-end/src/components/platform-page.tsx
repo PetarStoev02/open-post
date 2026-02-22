@@ -20,9 +20,16 @@ import {
   Trash2Icon,
 } from "lucide-react"
 
-import type { GetPostsResponse, GetThreadsPostInsightsResponse, GetThreadsPostsResponse, Platform, PlatformPost, Post } from "@/types/post"
+import type { GetPostsResponse, GetThreadsPostInsightsResponse, GetThreadsPostsResponse, Platform, PlatformPost, Post, PostStatus } from "@/types/post"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   AlertDialog,
@@ -89,6 +96,7 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [postToDelete, setPostToDelete] = React.useState<Post | null>(null)
   const [livePostToDelete, setLivePostToDelete] = React.useState<PlatformPost | null>(null)
+  const [statusFilter, setStatusFilter] = React.useState<PostStatus | "ALL">("ALL")
 
   const Icon = platformIcons[platform]
   const label = platformLabels[platform]
@@ -262,26 +270,53 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
 
   const isLoading = (postsLoading && !postsData) || accountsLoading
 
+  // Apply status filter
+  const filteredPosts = statusFilter === "ALL" ? posts : posts.filter((p) => p.status === statusFilter)
+
+  const filteredUnifiedPosts = React.useMemo((): Array<UnifiedPost> => {
+    if (statusFilter === "ALL") return unifiedPosts
+    return unifiedPosts.filter((item) => {
+      if (item.kind === "live") return statusFilter === "PUBLISHED"
+      return item.post.status === statusFilter
+    })
+  }, [unifiedPosts, statusFilter])
+
   // For Threads with connected account, use unified list; otherwise use local posts
   const showUnifiedList = hasConnectedThreads
   const hasAnyContent = showUnifiedList
-    ? unifiedPosts.length > 0 || threadsLoading || !threadsInitialFetchDone
-    : posts.length > 0
+    ? filteredUnifiedPosts.length > 0 || threadsLoading || !threadsInitialFetchDone
+    : filteredPosts.length > 0
 
   return (
     <div className="h-full overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-6 py-4">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b bg-background px-6 py-4">
         <div className="flex items-center gap-3">
           <div className={cn("flex size-8 items-center justify-center rounded-lg bg-muted", color)}>
             <Icon className="size-5" />
           </div>
           <h1 className="text-2xl font-semibold">{label}</h1>
         </div>
-        <Button onClick={() => openSheet({ platforms: [platform], locked: true })}>
-          <PlusIcon className="size-4" />
-          Create Post
-        </Button>
+        <div className="flex items-center gap-3">
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as PostStatus | "ALL")}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Statuses</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+              <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+              <SelectItem value="PUBLISHED">Published</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="FAILED">Failed</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => openSheet({ platforms: [platform], locked: true })}>
+            <PlusIcon className="size-4" />
+            Create Post
+          </Button>
+        </div>
       </div>
 
       <div className="p-6">
@@ -357,14 +392,14 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
           ) : showUnifiedList ? (
             /* Unified Threads list: local drafts + live posts */
             <div>
-              {threadsLoading && unifiedPosts.length === 0 ? (
+              {threadsLoading && filteredUnifiedPosts.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <LoaderIcon className="size-5 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
                   <div className="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3">
-                    {unifiedPosts.map((item) =>
+                    {filteredUnifiedPosts.map((item) =>
                       item.kind === "local" ? (
                         <LocalPostCard
                           key={item.post.id}
@@ -407,11 +442,11 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-medium text-muted-foreground">
-                  {posts.length} {posts.length === 1 ? "post" : "posts"}
+                  {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"}
                 </h2>
               </div>
               <div className="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3">
-                {posts.map((post) => (
+                {filteredPosts.map((post) => (
                   <LocalPostCard
                     key={post.id}
                     post={post}
