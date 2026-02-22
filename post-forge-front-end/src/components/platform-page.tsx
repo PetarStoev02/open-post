@@ -434,25 +434,33 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
 /* ── Card components ── */
 
 const LivePostCard = ({ post, onDelete }: { post: PlatformPost; onDelete: (post: PlatformPost) => void }) => {
-  const [hasFetched, setHasFetched] = React.useState(false)
-
-  const [fetchInsights, { data: insightsData, loading: insightsLoading }] = useLazyQuery<GetThreadsPostInsightsResponse>(
+  const { data: insightsData, loading: insightsLoading } = useQuery<GetThreadsPostInsightsResponse>(
     GET_THREADS_POST_INSIGHTS,
-    { fetchPolicy: "network-only" }
+    { variables: { platformPostId: post.platformPostId }, fetchPolicy: "cache-and-network" }
   )
 
-  const handleCardClick = () => {
-    if (!hasFetched) {
-      setHasFetched(true)
-      fetchInsights({ variables: { platformPostId: post.platformPostId } })
-    }
-  }
-
   const insights = insightsData?.threadsPostInsights
+  const mediaThumb = post.thumbnailUrl ?? post.mediaUrl
+  const hasMedia = post.mediaType && post.mediaType !== "TEXT" && mediaThumb
 
   return (
     <Card className="flex flex-col overflow-hidden transition-colors hover:bg-muted/50">
-      <CardContent className="flex flex-1 flex-col gap-3 p-4" onClick={handleCardClick}>
+      {/* Media thumbnail */}
+      {hasMedia && (
+        <div className="relative aspect-video w-full overflow-hidden bg-muted">
+          <img
+            src={mediaThumb}
+            alt=""
+            className="size-full object-cover"
+          />
+          {post.mediaType === "VIDEO" && (
+            <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+              Video
+            </div>
+          )}
+        </div>
+      )}
+      <CardContent className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="border text-[10px] bg-green-100 text-green-700 border-green-200">
             Published
@@ -462,25 +470,23 @@ const LivePostCard = ({ post, onDelete }: { post: PlatformPost; onDelete: (post:
           </span>
         </div>
         <p className="line-clamp-3 flex-1 text-sm">{post.text ?? ""}</p>
-        {hasFetched && (
-          <div className="border-t pt-3">
-            {insightsLoading ? (
-              <div className="flex items-center justify-center py-2">
-                <LoaderIcon className="size-4 animate-spin text-muted-foreground" />
-              </div>
-            ) : insights ? (
-              <div className="grid grid-cols-5 gap-2">
-                <InsightMetric icon={<EyeIcon className="size-3" />} label="Views" value={insights.views} />
-                <InsightMetric icon={<HeartIcon className="size-3" />} label="Likes" value={insights.likes} />
-                <InsightMetric icon={<MessageCircleIcon className="size-3" />} label="Replies" value={insights.replies} />
-                <InsightMetric icon={<RepeatIcon className="size-3" />} label="Reposts" value={insights.reposts} />
-                <InsightMetric icon={<QuoteIcon className="size-3" />} label="Quotes" value={insights.quotes} />
-              </div>
-            ) : (
-              <p className="text-center text-xs text-muted-foreground">Unable to load insights</p>
-            )}
-          </div>
-        )}
+        <div className="border-t pt-3">
+          {insightsLoading && !insights ? (
+            <div className="flex items-center justify-center py-2">
+              <LoaderIcon className="size-4 animate-spin text-muted-foreground" />
+            </div>
+          ) : insights ? (
+            <div className="grid grid-cols-5 gap-2">
+              <InsightMetric icon={<EyeIcon className="size-3" />} label="Views" value={insights.views} />
+              <InsightMetric icon={<HeartIcon className="size-3" />} label="Likes" value={insights.likes} />
+              <InsightMetric icon={<MessageCircleIcon className="size-3" />} label="Replies" value={insights.replies} />
+              <InsightMetric icon={<RepeatIcon className="size-3" />} label="Reposts" value={insights.reposts} />
+              <InsightMetric icon={<QuoteIcon className="size-3" />} label="Quotes" value={insights.quotes} />
+            </div>
+          ) : (
+            <p className="text-center text-xs text-muted-foreground">Unable to load insights</p>
+          )}
+        </div>
       </CardContent>
       <div className="flex items-center justify-end gap-1 border-t px-3 py-2">
         <Button variant="ghost" size="icon" className="size-8" asChild>

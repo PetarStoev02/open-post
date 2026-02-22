@@ -122,6 +122,9 @@ export const GET_THREADS_CALENDAR_POSTS = gql`
       text
       timestamp
       permalink
+      mediaType
+      mediaUrl
+      thumbnailUrl
     }
   }
 `;
@@ -134,6 +137,9 @@ export const GET_THREADS_POSTS = gql`
         text
         timestamp
         permalink
+        mediaType
+        mediaUrl
+        thumbnailUrl
       }
       nextCursor
       hasNextPage

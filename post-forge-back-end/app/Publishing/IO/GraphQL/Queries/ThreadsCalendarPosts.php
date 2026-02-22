@@ -62,6 +62,9 @@ final readonly class ThreadsCalendarPosts
                             'text' => $item['text'] ?? null,
                             'timestamp' => $item['timestamp'],
                             'permalink' => $item['permalink'],
+                            'mediaType' => $item['media_type'] ?? null,
+                            'mediaUrl' => $item['media_url'] ?? null,
+                            'thumbnailUrl' => $item['thumbnail_url'] ?? null,
                         ];
                     }
                 }

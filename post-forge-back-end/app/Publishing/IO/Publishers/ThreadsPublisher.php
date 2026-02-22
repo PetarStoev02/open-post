@@ -78,7 +78,7 @@ final readonly class ThreadsPublisher implements PlatformPublisher
         $accessToken = $account->access_token;
 
         $params = [
-            'fields' => 'id,text,timestamp,permalink',
+            'fields' => 'id,text,timestamp,permalink,media_type,media_url,thumbnail_url',
             'limit' => $limit,
             'access_token' => $accessToken,
         ];
