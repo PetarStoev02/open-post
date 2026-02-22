@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EmptyState } from "@/components/empty-state"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
@@ -47,7 +48,7 @@ type SocialAccount = {
   id: string
   platform: Platform
   platformUserId: string
-  metadata?: { name?: string; username?: string } | null
+  metadata?: { name?: string; username?: string; avatar?: string } | null
   needsReconnect?: boolean
 }
 
@@ -268,9 +269,12 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
             connectedAccount ? (
               <Card>
                 <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-                  <div className={cn("flex size-10 items-center justify-center rounded-full bg-muted", color)}>
-                    <Icon className="size-5" />
-                  </div>
+                  <Avatar className="size-10">
+                    <AvatarImage src={connectedAccount.metadata?.avatar ?? undefined} alt={connectedAccount.metadata?.name ?? label} />
+                    <AvatarFallback className={cn("bg-muted", color)}>
+                      <Icon className="size-5" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <CardTitle className="text-base">
                       {connectedAccount.metadata?.name ?? (connectedAccount.metadata?.username ? `@${connectedAccount.metadata.username}` : label)}

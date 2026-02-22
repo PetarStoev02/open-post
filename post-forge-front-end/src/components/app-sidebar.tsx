@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Link, useLocation } from "@tanstack/react-router"
+import { useQuery } from "@apollo/client/react"
 import {
   BarChart3Icon,
   CalendarIcon,
@@ -16,6 +17,7 @@ import {
 
 import { NavUser } from "@/components/nav-user"
 import { useCreatePost } from "@/contexts/create-post-context"
+import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 import {
   Sidebar,
   SidebarContent,
@@ -85,14 +87,27 @@ const platformItems = [
   },
 ]
 
+type SocialAccountData = {
+  socialAccounts: Array<{
+    id: string
+    platform: string
+    metadata?: { name?: string; username?: string; avatar?: string } | null
+  }>
+}
+
 export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   const location = useLocation()
   const { openSheet } = useCreatePost()
+  const { data: accountsData } = useQuery<SocialAccountData>(GET_SOCIAL_ACCOUNTS)
+
+  const firstAccount = accountsData?.socialAccounts?.[0] ?? null
+  const userAvatar = firstAccount?.metadata?.avatar ?? ""
+  const userName = firstAccount?.metadata?.name ?? firstAccount?.metadata?.username ?? "shadcn"
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="h-16 border-b border-sidebar-border">
-        <NavUser user={data.user} />
+        <NavUser user={{ ...data.user, name: userName, avatar: userAvatar }} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
