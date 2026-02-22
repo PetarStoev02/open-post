@@ -36,6 +36,7 @@ type DashboardStats {
     upcomingPosts: [Post!]!
     scheduledDates: [String!]!
     postDates: [String!]!
+    threadsEngagement: ThreadsEngagement
 }
 
 "OAuth provider credentials status (masked; for settings UI)"
@@ -46,13 +47,56 @@ type OAuthProviderCredentials {
     clientSecretSet: Boolean!
 }
 
+"Social account metadata from OAuth provider"
+type SocialAccountMetadata {
+    name: String
+    username: String
+    email: String
+    avatar: String
+}
+
+"A post fetched directly from a platform API"
+type PlatformPost {
+    platformPostId: String!
+    text: String
+    timestamp: String!
+    permalink: String!
+}
+
+"Paginated response for platform posts"
+type PlatformPostsResponse {
+    posts: [PlatformPost!]!
+    nextCursor: String
+    hasNextPage: Boolean!
+}
+
+"Per-post insights from the Threads API"
+type ThreadsPostInsights {
+    views: Int!
+    likes: Int!
+    replies: Int!
+    reposts: Int!
+    quotes: Int!
+}
+
+"Aggregated Threads engagement data (last 30 days)"
+type ThreadsEngagement {
+    views: Int!
+    likes: Int!
+    replies: Int!
+    reposts: Int!
+    quotes: Int!
+    totalEngagements: Int!
+    engagementRate: Float
+}
+
 "A connected social account (OAuth)"
 type SocialAccount {
     id: ID!
     workspaceId: ID! @rename(attribute: "workspace_id")
     platform: Platform! @method(name: "platformForGraphQL")
     platformUserId: String! @rename(attribute: "platform_user_id")
-    metadata: JSON
+    metadata: SocialAccountMetadata
     needsReconnect: Boolean! @method(name: "needsReconnect")
     createdAt: DateTime! @rename(attribute: "created_at")
     updatedAt: DateTime! @rename(attribute: "updated_at")

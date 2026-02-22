@@ -67,6 +67,25 @@ export type GetPostResponse = {
   post: Post | null
 }
 
+// Threads insights types
+export type ThreadsPostInsights = {
+  views: number
+  likes: number
+  replies: number
+  reposts: number
+  quotes: number
+}
+
+export type ThreadsEngagement = {
+  views: number
+  likes: number
+  replies: number
+  reposts: number
+  quotes: number
+  totalEngagements: number
+  engagementRate: number | null
+}
+
 // Dashboard types
 export type DashboardStats = {
   totalPostsCount: number
@@ -78,6 +97,7 @@ export type DashboardStats = {
   upcomingPosts: Array<Post>
   scheduledDates: Array<string>
   postDates: Array<string>
+  threadsEngagement: ThreadsEngagement | null
 }
 
 export type GetDashboardStatsResponse = {
@@ -86,4 +106,26 @@ export type GetDashboardStatsResponse = {
 
 export type GetPostsForDateResponse = {
   postsForDate: Array<Post>
+}
+
+// Platform posts (fetched directly from platform API)
+export type PlatformPost = {
+  platformPostId: string
+  text: string | null
+  timestamp: string
+  permalink: string
+}
+
+export type PlatformPostsResponse = {
+  posts: Array<PlatformPost>
+  nextCursor: string | null
+  hasNextPage: boolean
+}
+
+export type GetThreadsPostsResponse = {
+  threadsPosts: PlatformPostsResponse
+}
+
+export type GetThreadsPostInsightsResponse = {
+  threadsPostInsights: ThreadsPostInsights | null
 }
