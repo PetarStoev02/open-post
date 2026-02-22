@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { EmptyState } from "@/components/empty-state"
 import { PostCardSkeleton } from "@/components/skeletons"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
@@ -510,21 +511,31 @@ const LivePostCard = ({ post, onDelete }: { post: PlatformPost; onDelete: (post:
         </div>
       </CardContent>
       <div className="flex items-center justify-end gap-1 border-t px-3 py-2">
-        <Button variant="ghost" size="icon" className="size-8" asChild>
-          <a href={post.permalink} target="_blank" rel="noopener noreferrer">
-            <ExternalLinkIcon className="size-4" />
-            <span className="sr-only">View on Threads</span>
-          </a>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 text-destructive hover:text-destructive"
-          onClick={() => onDelete(post)}
-        >
-          <Trash2Icon className="size-4" />
-          <span className="sr-only">Delete post</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8" asChild>
+              <a href={post.permalink} target="_blank" rel="noopener noreferrer">
+                <ExternalLinkIcon className="size-4" />
+                <span className="sr-only">View on Threads</span>
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>View on Threads</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-destructive hover:text-destructive"
+              onClick={() => onDelete(post)}
+            >
+              <Trash2Icon className="size-4" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Delete</TooltipContent>
+        </Tooltip>
       </div>
     </Card>
   )
@@ -595,34 +606,49 @@ const LocalPostCard = ({
       </CardContent>
       <div className="flex items-center justify-end gap-1 border-t px-3 py-2">
         {(post.status === "DRAFT" || post.status === "SCHEDULED") && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8"
-            disabled={publishingPostId === post.id}
-            onClick={() => onPublish(post)}
-          >
-            {publishingPostId === post.id ? (
-              <LoaderIcon className="size-4 animate-spin" />
-            ) : (
-              <SendIcon className="size-4" />
-            )}
-            <span className="sr-only">Publish post</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                disabled={publishingPostId === post.id}
+                onClick={() => onPublish(post)}
+              >
+                {publishingPostId === post.id ? (
+                  <LoaderIcon className="size-4 animate-spin" />
+                ) : (
+                  <SendIcon className="size-4" />
+                )}
+                <span className="sr-only">Publish</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Publish</TooltipContent>
+          </Tooltip>
         )}
-        <Button variant="ghost" size="icon" className="size-8" onClick={() => onEdit(post)}>
-          <PencilIcon className="size-4" />
-          <span className="sr-only">Edit post</span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 text-destructive hover:text-destructive"
-          onClick={() => onDelete(post)}
-        >
-          <Trash2Icon className="size-4" />
-          <span className="sr-only">Delete post</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8" onClick={() => onEdit(post)}>
+              <PencilIcon className="size-4" />
+              <span className="sr-only">Edit</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-destructive hover:text-destructive"
+              onClick={() => onDelete(post)}
+            >
+              <Trash2Icon className="size-4" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Delete</TooltipContent>
+        </Tooltip>
       </div>
     </Card>
   )
