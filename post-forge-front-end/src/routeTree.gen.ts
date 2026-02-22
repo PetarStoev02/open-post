@@ -17,8 +17,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlatformsTwitterRouteImport } from './routes/platforms/twitter'
 import { Route as PlatformsThreadsRouteImport } from './routes/platforms/threads'
 import { Route as PlatformsLinkedinRouteImport } from './routes/platforms/linkedin'
-import { Route as PlatformsInstagramRouteImport } from './routes/platforms/instagram'
-import { Route as PlatformsFacebookRouteImport } from './routes/platforms/facebook'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -60,16 +58,6 @@ const PlatformsLinkedinRoute = PlatformsLinkedinRouteImport.update({
   path: '/platforms/linkedin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlatformsInstagramRoute = PlatformsInstagramRouteImport.update({
-  id: '/platforms/instagram',
-  path: '/platforms/instagram',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlatformsFacebookRoute = PlatformsFacebookRouteImport.update({
-  id: '/platforms/facebook',
-  path: '/platforms/facebook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,8 +65,6 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsRoute
   '/content-library': typeof ContentLibraryRoute
   '/dashboard': typeof DashboardRoute
-  '/platforms/facebook': typeof PlatformsFacebookRoute
-  '/platforms/instagram': typeof PlatformsInstagramRoute
   '/platforms/linkedin': typeof PlatformsLinkedinRoute
   '/platforms/threads': typeof PlatformsThreadsRoute
   '/platforms/twitter': typeof PlatformsTwitterRoute
@@ -89,8 +75,6 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsRoute
   '/content-library': typeof ContentLibraryRoute
   '/dashboard': typeof DashboardRoute
-  '/platforms/facebook': typeof PlatformsFacebookRoute
-  '/platforms/instagram': typeof PlatformsInstagramRoute
   '/platforms/linkedin': typeof PlatformsLinkedinRoute
   '/platforms/threads': typeof PlatformsThreadsRoute
   '/platforms/twitter': typeof PlatformsTwitterRoute
@@ -102,8 +86,6 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/content-library': typeof ContentLibraryRoute
   '/dashboard': typeof DashboardRoute
-  '/platforms/facebook': typeof PlatformsFacebookRoute
-  '/platforms/instagram': typeof PlatformsInstagramRoute
   '/platforms/linkedin': typeof PlatformsLinkedinRoute
   '/platforms/threads': typeof PlatformsThreadsRoute
   '/platforms/twitter': typeof PlatformsTwitterRoute
@@ -116,8 +98,6 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/content-library'
     | '/dashboard'
-    | '/platforms/facebook'
-    | '/platforms/instagram'
     | '/platforms/linkedin'
     | '/platforms/threads'
     | '/platforms/twitter'
@@ -128,8 +108,6 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/content-library'
     | '/dashboard'
-    | '/platforms/facebook'
-    | '/platforms/instagram'
     | '/platforms/linkedin'
     | '/platforms/threads'
     | '/platforms/twitter'
@@ -140,8 +118,6 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/content-library'
     | '/dashboard'
-    | '/platforms/facebook'
-    | '/platforms/instagram'
     | '/platforms/linkedin'
     | '/platforms/threads'
     | '/platforms/twitter'
@@ -153,8 +129,6 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   ContentLibraryRoute: typeof ContentLibraryRoute
   DashboardRoute: typeof DashboardRoute
-  PlatformsFacebookRoute: typeof PlatformsFacebookRoute
-  PlatformsInstagramRoute: typeof PlatformsInstagramRoute
   PlatformsLinkedinRoute: typeof PlatformsLinkedinRoute
   PlatformsThreadsRoute: typeof PlatformsThreadsRoute
   PlatformsTwitterRoute: typeof PlatformsTwitterRoute
@@ -218,20 +192,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatformsLinkedinRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/platforms/instagram': {
-      id: '/platforms/instagram'
-      path: '/platforms/instagram'
-      fullPath: '/platforms/instagram'
-      preLoaderRoute: typeof PlatformsInstagramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/platforms/facebook': {
-      id: '/platforms/facebook'
-      path: '/platforms/facebook'
-      fullPath: '/platforms/facebook'
-      preLoaderRoute: typeof PlatformsFacebookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -241,8 +201,6 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   ContentLibraryRoute: ContentLibraryRoute,
   DashboardRoute: DashboardRoute,
-  PlatformsFacebookRoute: PlatformsFacebookRoute,
-  PlatformsInstagramRoute: PlatformsInstagramRoute,
   PlatformsLinkedinRoute: PlatformsLinkedinRoute,
   PlatformsThreadsRoute: PlatformsThreadsRoute,
   PlatformsTwitterRoute: PlatformsTwitterRoute,

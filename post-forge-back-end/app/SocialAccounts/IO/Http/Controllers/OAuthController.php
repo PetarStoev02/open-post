@@ -18,8 +18,6 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 final class OAuthController
 {
     private const PROVIDER_SCOPES = [
-        'facebook' => ['pages_show_list', 'pages_manage_posts'],
-        'instagram' => ['instagram_business_basic'],
         'threads' => ['threads_basic'],
         'x' => ['users.read', 'tweet.read', 'tweet.write', 'offline.access'],
         'linkedin-openid' => ['openid', 'profile', 'email', 'w_member_social'],

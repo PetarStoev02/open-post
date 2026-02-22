@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->text('content');
-            $table->json('platforms'); // Array of platforms: ['twitter', 'instagram', 'linkedin']
+            $table->json('platforms'); // Array of platforms: ['twitter', 'linkedin', 'threads']
             $table->string('status')->default('draft'); // draft, scheduled, published, failed
             $table->timestamp('scheduled_at')->nullable();
             $table->json('media_urls')->nullable(); // Array of media attachment URLs
