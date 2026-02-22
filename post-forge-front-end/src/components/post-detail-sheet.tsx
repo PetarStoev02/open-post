@@ -47,6 +47,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { MediaUpload } from "@/components/media-upload"
 import { usePostActions } from "@/contexts/post-actions-context"
@@ -337,45 +338,47 @@ export const PostDetailSheet = () => {
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            {actionMode === "view" && (
-              <ViewMode post={selectedPost} />
-            )}
+          <ScrollArea className="flex-1">
+            <div className="px-6 py-4">
+              {actionMode === "view" && (
+                <ViewMode post={selectedPost} />
+              )}
 
-            {actionMode === "edit" && (
-              <EditMode
-                content={editContent}
-                setContent={setEditContent}
-                platforms={editPlatforms}
-                togglePlatform={togglePlatform}
-                scheduledDate={editDate}
-                setScheduledDate={setEditDate}
-                scheduledTime={editTime}
-                setScheduledTime={setEditTime}
-                hashtags={editHashtags}
-                setHashtags={setEditHashtags}
-                hashtagInput={hashtagInput}
-                setHashtagInput={setHashtagInput}
-                addHashtag={addHashtag}
-                mentions={editMentions}
-                setMentions={setEditMentions}
-                mentionInput={mentionInput}
-                setMentionInput={setMentionInput}
-                addMention={addMention}
-                mediaUrls={editMediaUrls}
-                setMediaUrls={setEditMediaUrls}
-              />
-            )}
+              {actionMode === "edit" && (
+                <EditMode
+                  content={editContent}
+                  setContent={setEditContent}
+                  platforms={editPlatforms}
+                  togglePlatform={togglePlatform}
+                  scheduledDate={editDate}
+                  setScheduledDate={setEditDate}
+                  scheduledTime={editTime}
+                  setScheduledTime={setEditTime}
+                  hashtags={editHashtags}
+                  setHashtags={setEditHashtags}
+                  hashtagInput={hashtagInput}
+                  setHashtagInput={setHashtagInput}
+                  addHashtag={addHashtag}
+                  mentions={editMentions}
+                  setMentions={setEditMentions}
+                  mentionInput={mentionInput}
+                  setMentionInput={setMentionInput}
+                  addMention={addMention}
+                  mediaUrls={editMediaUrls}
+                  setMediaUrls={setEditMediaUrls}
+                />
+              )}
 
-            {actionMode === "reschedule" && (
-              <RescheduleMode
-                date={rescheduleDate}
-                setDate={setRescheduleDate}
-                time={rescheduleTime}
-                setTime={setRescheduleTime}
-              />
-            )}
-          </div>
+              {actionMode === "reschedule" && (
+                <RescheduleMode
+                  date={rescheduleDate}
+                  setDate={setRescheduleDate}
+                  time={rescheduleTime}
+                  setTime={setRescheduleTime}
+                />
+              )}
+            </div>
+          </ScrollArea>
 
           <SheetFooter className="border-t px-6 py-4">
             {actionMode === "view" && (

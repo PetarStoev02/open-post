@@ -733,7 +733,7 @@ export const ContentCalendar = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-6 py-4">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-semibold">Content Calendar</h1>
           <div className="flex items-center gap-1 rounded-lg border bg-muted/50 px-2 py-1">

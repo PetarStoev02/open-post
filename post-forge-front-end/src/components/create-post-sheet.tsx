@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -222,8 +223,8 @@ export const CreatePostSheet = () => {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <div className="space-y-5">
+        <ScrollArea className="flex-1">
+          <div className="space-y-5 px-6 py-4">
             {/* Platform Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">
@@ -439,7 +440,7 @@ export const CreatePostSheet = () => {
               )}
             </div>
           </div>
-        </div>
+        </ScrollArea>
 
         <SheetFooter className="border-t px-6 py-4">
           {errors.submit && (
