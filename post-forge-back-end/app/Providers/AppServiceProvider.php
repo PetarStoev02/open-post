@@ -54,7 +54,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(SocialiteWasCalled::class, [\SocialiteProviders\Instagram\InstagramExtendSocialite::class, 'handle']);
         Event::listen(SocialiteWasCalled::class, [\SocialiteProviders\Threads\ThreadsExtendSocialite::class, 'handle']);
     }
 }

@@ -47,6 +47,6 @@ type Query {
     # OAUTH CREDENTIALS (for settings UI)
     # ============================================
 
-    "Get OAuth provider credentials status (masked; facebook, instagram, threads, x, linkedin-openid)"
+    "Get OAuth provider credentials status (masked; threads, x, linkedin-openid)"
     oauthCredentials: [OAuthProviderCredentials!]! @field(resolver: "App\\Foundation\\IO\\GraphQL\\Queries\\OAuthCredentials")
 }

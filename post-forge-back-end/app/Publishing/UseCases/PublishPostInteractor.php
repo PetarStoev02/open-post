@@ -8,6 +8,7 @@ use App\Posts\Entities\Enums\PostStatus;
 use App\Posts\Entities\Models\Post;
 use App\Posts\UseCases\Contracts\PostRepository;
 use App\Publishing\IO\Publishers\ThreadsPublisher;
+use App\Publishing\IO\Publishers\TwitterPublisher;
 use App\SocialAccounts\Entities\Models\Workspace;
 use App\SocialAccounts\UseCases\Contracts\SocialAccountRepository;
 use RuntimeException;
@@ -18,6 +19,7 @@ final readonly class PublishPostInteractor
         private PostRepository $postRepository,
         private SocialAccountRepository $socialAccountRepository,
         private ThreadsPublisher $threadsPublisher,
+        private TwitterPublisher $twitterPublisher,
     ) {}
 
     public function execute(string $postId): Post
@@ -46,6 +48,7 @@ final readonly class PublishPostInteractor
 
                 $platformPostId = match ($platform) {
                     'threads' => $this->threadsPublisher->publish($post, $account),
+                    'twitter' => $this->twitterPublisher->publish($post, $account),
                     default => throw new RuntimeException("Publishing to {$platform} is not yet supported"),
                 };
 
