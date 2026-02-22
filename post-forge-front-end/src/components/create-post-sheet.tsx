@@ -29,9 +29,7 @@ import { platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 
 const PLATFORM_MAX_CHARS: Record<Platform, number> = {
-  FACEBOOK: 63206,
   TWITTER: 280,
-  INSTAGRAM: 2200,
   LINKEDIN: 3000,
   THREADS: 500,
 }

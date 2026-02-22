@@ -15,10 +15,8 @@ A GraphQL-first social media scheduling backend built with Laravel 11 using Clea
 ## Supported Platforms
 
 - Twitter/X
-- Facebook
-- Instagram
 - LinkedIn
-- TikTok
+- Threads
 
 ## Quick Start
 
@@ -291,14 +289,10 @@ QUEUE_CONNECTION=redis
 # Social Platform OAuth (add your credentials)
 TWITTER_CLIENT_ID=
 TWITTER_CLIENT_SECRET=
-FACEBOOK_CLIENT_ID=
-FACEBOOK_CLIENT_SECRET=
-INSTAGRAM_CLIENT_ID=
-INSTAGRAM_CLIENT_SECRET=
+THREADS_CLIENT_ID=
+THREADS_CLIENT_SECRET=
 LINKEDIN_CLIENT_ID=
 LINKEDIN_CLIENT_SECRET=
-TIKTOK_CLIENT_ID=
-TIKTOK_CLIENT_SECRET=
 ```
 
 ## Deployment (Laravel Forge)

@@ -28,41 +28,6 @@ return [
         'api_version' => 'v2',
     ],
 
-    'facebook' => [
-        'name' => 'Facebook',
-        'character_limit' => 63206,
-        'media_rules' => [
-            'max_images' => 10,
-            'max_videos' => 1,
-            'max_image_size' => 10 * 1024 * 1024, // 10MB
-            'max_video_size' => 4 * 1024 * 1024 * 1024, // 4GB
-            'allowed_types' => ['image', 'video'],
-            'image_formats' => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff'],
-            'video_formats' => ['mp4', 'mov', 'avi'],
-        ],
-        'api_version' => 'v18.0',
-    ],
-
-    'instagram' => [
-        'name' => 'Instagram',
-        'character_limit' => 2200,
-        'hashtag_limit' => 30,
-        'media_rules' => [
-            'max_images' => 10, // Carousel
-            'max_videos' => 1,
-            'max_image_size' => 8 * 1024 * 1024, // 8MB
-            'max_video_size' => 100 * 1024 * 1024, // 100MB for feed, 4GB for IGTV
-            'allowed_types' => ['image', 'video'],
-            'image_formats' => ['jpg', 'jpeg', 'png'],
-            'video_formats' => ['mp4', 'mov'],
-            'aspect_ratios' => [
-                'min' => 0.8, // 4:5
-                'max' => 1.91, // 1.91:1
-            ],
-        ],
-        'api_version' => 'v18.0',
-    ],
-
     'linkedin' => [
         'name' => 'LinkedIn',
         'character_limit' => 3000,
@@ -133,12 +98,6 @@ return [
         'twitter' => [
             'posts_per_day' => 2400,
             'posts_per_15_min' => 300,
-        ],
-        'facebook' => [
-            'posts_per_day' => 50,
-        ],
-        'instagram' => [
-            'posts_per_day' => 25,
         ],
         'linkedin' => [
             'posts_per_day' => 100,

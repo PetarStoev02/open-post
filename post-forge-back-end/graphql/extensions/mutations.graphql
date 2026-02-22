@@ -24,7 +24,7 @@ type Mutation {
     # OAUTH CREDENTIALS (configure in app, not .env)
     # ============================================
 
-    "Set OAuth credentials for a provider (provider: facebook | instagram | threads | x | linkedin-openid)"
+    "Set OAuth credentials for a provider (provider: threads | x | linkedin-openid)"
     setOAuthCredentials(provider: String!, clientId: String!, clientSecret: String!): Boolean! @field(resolver: "App\\Foundation\\IO\\GraphQL\\Mutations\\SetOAuthCredentials")
 
     # ============================================

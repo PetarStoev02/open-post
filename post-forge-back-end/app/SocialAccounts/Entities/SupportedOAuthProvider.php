@@ -7,14 +7,12 @@ namespace App\SocialAccounts\Entities;
 final class SupportedOAuthProvider
 {
     /** All OAuth provider keys supported by Socialite. */
-    public const ALL = ['facebook', 'x', 'linkedin-openid', 'instagram', 'threads'];
+    public const ALL = ['x', 'linkedin-openid', 'threads'];
 
     /** Maps OAuth provider key to internal platform name. */
     public const PLATFORM_MAP = [
-        'facebook' => 'facebook',
         'x' => 'twitter',
         'linkedin-openid' => 'linkedin',
-        'instagram' => 'instagram',
         'threads' => 'threads',
     ];
 

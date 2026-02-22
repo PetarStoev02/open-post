@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@apollo/client/react"
-import { ChevronDownIcon, ChevronRightIcon, Facebook, InstagramIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Settings2Icon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
+import { ChevronDownIcon, ChevronRightIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Settings2Icon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
 import type { Platform } from "@/types/post"
 import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
@@ -35,33 +35,25 @@ import { Label } from "@/components/ui/label"
 
 
 const OAUTH_PROVIDERS = [
-  { key: "facebook", label: "Facebook", icon: Facebook, path: "/auth/facebook/redirect" },
-  { key: "instagram", label: "Instagram", icon: InstagramIcon, path: "/auth/instagram/redirect" },
   { key: "threads", label: "Threads", icon: MessageCircle, path: "/auth/threads/redirect" },
   { key: "x", label: "Twitter / X", icon: XIcon, path: "/auth/x/redirect" },
   { key: "linkedin-openid", label: "LinkedIn", icon: LinkedinIcon, path: "/auth/linkedin-openid/redirect" },
 ] as const
 
 const platformIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  FACEBOOK: Facebook,
   TWITTER: XIcon,
   LINKEDIN: LinkedinIcon,
-  INSTAGRAM: InstagramIcon,
   THREADS: MessageCircle,
 }
 
 /** OAuth redirect path per platform. Only platforms with reconnect support are listed. */
 const platformOAuthPath: Partial<Record<Platform, string>> = {
-  FACEBOOK: "/auth/facebook/redirect",
   TWITTER: "/auth/x/redirect",
   LINKEDIN: "/auth/linkedin-openid/redirect",
-  INSTAGRAM: "/auth/instagram/redirect",
   THREADS: "/auth/threads/redirect",
 }
 
 const OAUTH_CREDENTIAL_PROVIDERS = [
-  { key: "facebook", label: "Facebook" },
-  { key: "instagram", label: "Instagram" },
   { key: "threads", label: "Threads" },
   { key: "linkedin-openid", label: "LinkedIn" },
   { key: "x", label: "Twitter / X" },
@@ -86,8 +78,6 @@ const AccountsPage = () => {
   const [disconnectId, setDisconnectId] = useState<string | null>(null)
   const [oauthOpen, setOauthOpen] = useState(false)
   const [credentialForm, setCredentialForm] = useState<Record<string, { clientId: string; clientSecret: string }>>({
-    facebook: { clientId: "", clientSecret: "" },
-    instagram: { clientId: "", clientSecret: "" },
     threads: { clientId: "", clientSecret: "" },
     "linkedin-openid": { clientId: "", clientSecret: "" },
     x: { clientId: "", clientSecret: "" },

@@ -45,7 +45,7 @@ type UpdatePostResponse = {
   updatePost: Post
 }
 
-type Platform = "facebook" | "twitter" | "instagram" | "linkedin" | "threads"
+type Platform = "twitter" | "linkedin" | "threads"
 type PostStatus = "draft" | "scheduled" | "pending" | "published" | "cancelled" | "failed"
 
 type CalendarPost = {

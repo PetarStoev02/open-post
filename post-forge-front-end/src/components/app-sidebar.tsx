@@ -5,8 +5,6 @@ import { Link, useLocation } from "@tanstack/react-router"
 import {
   BarChart3Icon,
   CalendarIcon,
-  Facebook,
-  InstagramIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   LinkedinIcon,
@@ -70,16 +68,6 @@ const mainNavItems = [
 ]
 
 const platformItems = [
-  {
-    title: "Facebook",
-    url: "/platforms/facebook",
-    icon: Facebook,
-  },
-  {
-    title: "Instagram",
-    url: "/platforms/instagram",
-    icon: InstagramIcon,
-  },
   {
     title: "Threads",
     url: "/platforms/threads",
