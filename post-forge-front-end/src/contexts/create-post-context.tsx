@@ -5,7 +5,7 @@ import type { Platform } from "@/types/post"
 
 type OpenSheetOptions = {
   date?: Date
-  platforms?: Platform[]
+  platforms?: Array<Platform>
   locked?: boolean
 }
 
@@ -14,7 +14,7 @@ type CreatePostContextType = {
   openSheet: (options?: OpenSheetOptions) => void
   closeSheet: () => void
   preselectedDate?: Date
-  preselectedPlatforms?: Platform[]
+  preselectedPlatforms?: Array<Platform>
   platformLocked: boolean
 }
 
@@ -23,7 +23,7 @@ const CreatePostContext = React.createContext<CreatePostContextType | undefined>
 export const CreatePostProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const [preselectedDate, setPreselectedDate] = React.useState<Date | undefined>()
-  const [preselectedPlatforms, setPreselectedPlatforms] = React.useState<Platform[] | undefined>()
+  const [preselectedPlatforms, setPreselectedPlatforms] = React.useState<Array<Platform> | undefined>()
   const [platformLocked, setPlatformLocked] = React.useState(false)
 
   const openSheet = React.useCallback((options?: OpenSheetOptions) => {

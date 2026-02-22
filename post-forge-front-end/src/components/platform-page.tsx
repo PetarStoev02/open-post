@@ -40,7 +40,7 @@ import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
-import { DELETE_POST, DELETE_THREADS_POST, GET_POSTS, GET_THREADS_POST_INSIGHTS, GET_THREADS_POSTS, PUBLISH_POST } from "@/graphql/operations/posts"
+import { DELETE_POST, DELETE_THREADS_POST, GET_POSTS, GET_THREADS_POSTS, GET_THREADS_POST_INSIGHTS, PUBLISH_POST } from "@/graphql/operations/posts"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 
 type SocialAccount = {
