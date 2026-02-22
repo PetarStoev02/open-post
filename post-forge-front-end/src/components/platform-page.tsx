@@ -238,12 +238,27 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
     }
   }
 
-  const isLoading = postsLoading && !postsData
+  // Track whether we've done the initial threads fetch
+  const [threadsInitialFetchDone, setThreadsInitialFetchDone] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!hasConnectedThreads) {
+      setThreadsInitialFetchDone(false)
+    }
+  }, [hasConnectedThreads])
+
+  React.useEffect(() => {
+    if (!threadsLoading && threadsPosts.length > 0) {
+      setThreadsInitialFetchDone(true)
+    }
+  }, [threadsLoading, threadsPosts.length])
+
+  const isLoading = (postsLoading && !postsData) || accountsLoading
 
   // For Threads with connected account, use unified list; otherwise use local posts
   const showUnifiedList = hasConnectedThreads
   const hasAnyContent = showUnifiedList
-    ? unifiedPosts.length > 0 || threadsLoading
+    ? unifiedPosts.length > 0 || threadsLoading || !threadsInitialFetchDone
     : posts.length > 0
 
   return (
