@@ -45,6 +45,21 @@ export const DELETE_POST = gql`
   }
 `;
 
+export const DELETE_THREADS_POST = gql`
+  mutation DeleteThreadsPost($platformPostId: String!) {
+    deleteThreadsPost(platformPostId: $platformPostId)
+  }
+`;
+
+export const PUBLISH_POST = gql`
+  mutation PublishPost($id: ID!) {
+    publishPost(id: $id) {
+      ...PostFields
+    }
+  }
+  ${POST_FRAGMENT}
+`;
+
 export const GET_POST = gql`
   query GetPost($id: ID!) {
     post(id: $id) {
@@ -55,8 +70,8 @@ export const GET_POST = gql`
 `;
 
 export const GET_POSTS = gql`
-  query GetPosts {
-    posts {
+  query GetPosts($platform: Platform) {
+    posts(platform: $platform) {
       ...PostFields
     }
   }
@@ -86,9 +101,45 @@ export const GET_DASHBOARD_STATS = gql`
       }
       scheduledDates
       postDates
+      threadsEngagement {
+        views
+        likes
+        replies
+        reposts
+        quotes
+        totalEngagements
+        engagementRate
+      }
     }
   }
   ${POST_FRAGMENT}
+`;
+
+export const GET_THREADS_POSTS = gql`
+  query GetThreadsPosts($limit: Int, $after: String) {
+    threadsPosts(limit: $limit, after: $after) {
+      posts {
+        platformPostId
+        text
+        timestamp
+        permalink
+      }
+      nextCursor
+      hasNextPage
+    }
+  }
+`;
+
+export const GET_THREADS_POST_INSIGHTS = gql`
+  query GetThreadsPostInsights($platformPostId: String!) {
+    threadsPostInsights(platformPostId: $platformPostId) {
+      views
+      likes
+      replies
+      reposts
+      quotes
+    }
+  }
 `;
 
 export const GET_POSTS_FOR_DATE = gql`
