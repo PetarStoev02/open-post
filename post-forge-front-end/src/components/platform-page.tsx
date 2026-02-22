@@ -42,6 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import {
@@ -105,6 +106,8 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
   const [postToDelete, setPostToDelete] = React.useState<Post | null>(null)
   const [livePostToDelete, setLivePostToDelete] = React.useState<PlatformPost | null>(null)
   const [statusFilter, setStatusFilter] = React.useState<PostStatus | "ALL">("ALL")
+  const [bulkMode, setBulkMode] = React.useState(false)
+  const [selectedPostIds, setSelectedPostIds] = React.useState<Set<string>>(new Set())
 
   const Icon = platformIcons[platform]
   const label = platformLabels[platform]
@@ -281,6 +284,31 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
     }
   }
 
+  const togglePostSelection = (postId: string) => {
+    setSelectedPostIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(postId)) {
+        next.delete(postId)
+      } else {
+        next.add(postId)
+      }
+      return next
+    })
+  }
+
+  const handleBulkDelete = async () => {
+    for (const id of selectedPostIds) {
+      await deletePost({ variables: { id } })
+    }
+    setSelectedPostIds(new Set())
+    setBulkMode(false)
+  }
+
+  const cancelBulkMode = () => {
+    setBulkMode(false)
+    setSelectedPostIds(new Set())
+  }
+
   // Track whether we've done the initial threads fetch
   const [threadsInitialFetchDone, setThreadsInitialFetchDone] = React.useState(false)
 
@@ -340,6 +368,13 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
               <SelectItem value="CANCELLED">Cancelled</SelectItem>
             </SelectContent>
           </Select>
+          <Button
+            variant={bulkMode ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => bulkMode ? cancelBulkMode() : setBulkMode(true)}
+          >
+            {bulkMode ? "Cancel" : "Select"}
+          </Button>
           <Button onClick={() => openSheet({ platforms: [platform], locked: true })}>
             <PlusIcon className="size-4" />
             Create Post
@@ -450,6 +485,9 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
                           onOpen={openPost}
                           onEdit={editPost}
                           onDelete={handleDeleteClick}
+                          bulkMode={bulkMode}
+                          selected={selectedPostIds.has(item.post.id)}
+                          onToggleSelect={togglePostSelection}
                         />
                       ) : (
                         <LivePostCard key={item.post.platformPostId} post={item.post} onDelete={handleDeleteLiveClick} />
@@ -498,6 +536,9 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
                     onOpen={openPost}
                     onEdit={editPost}
                     onDelete={handleDeleteClick}
+                    bulkMode={bulkMode}
+                    selected={selectedPostIds.has(post.id)}
+                    onToggleSelect={togglePostSelection}
                   />
                 ))}
               </div>
@@ -505,6 +546,22 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
           )}
         </div>
       </div>
+
+      {/* Bulk Actions Bar */}
+      {bulkMode && selectedPostIds.size > 0 && (
+        <div className="sticky bottom-0 z-10 flex items-center justify-between border-t bg-background px-6 py-3">
+          <span className="text-sm font-medium">{selectedPostIds.size} selected</span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={cancelBulkMode}>
+              Cancel
+            </Button>
+            <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+              <Trash2Icon className="size-4" />
+              Delete Selected
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -634,6 +691,9 @@ const LocalPostCard = ({
   onOpen,
   onEdit,
   onDelete,
+  bulkMode = false,
+  selected = false,
+  onToggleSelect,
 }: {
   post: Post
   publishingPostId: string | null
@@ -641,12 +701,15 @@ const LocalPostCard = ({
   onOpen: (post: Post) => void
   onEdit: (post: Post) => void
   onDelete: (post: Post) => void
+  bulkMode?: boolean
+  selected?: boolean
+  onToggleSelect?: (postId: string) => void
 }) => {
   const statusStyle = statusStyles[post.status] ?? statusStyles.DRAFT
   const hasMedia = post.mediaUrls.length > 0
 
   return (
-    <Card className="flex break-inside-avoid flex-col overflow-hidden transition-colors hover:bg-muted/50">
+    <Card className={cn("flex break-inside-avoid flex-col overflow-hidden transition-colors hover:bg-muted/50", selected && "ring-2 ring-primary")}>
       {/* Media thumbnail */}
       {hasMedia && (
         <div className="relative aspect-video w-full overflow-hidden bg-muted">
@@ -665,9 +728,16 @@ const LocalPostCard = ({
       )}
       <CardContent
         className="flex flex-1 cursor-pointer flex-col gap-3 p-4"
-        onClick={() => onOpen(post)}
+        onClick={() => bulkMode ? onToggleSelect?.(post.id) : onOpen(post)}
       >
         <div className="flex flex-wrap items-center gap-2">
+          {bulkMode && (
+            <Checkbox
+              checked={selected}
+              onCheckedChange={() => onToggleSelect?.(post.id)}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
           <Badge variant="outline" className={cn("text-[10px] border", statusStyle.className)}>
             {statusStyle.label}
           </Badge>
