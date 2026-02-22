@@ -262,9 +262,9 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
     : posts.length > 0
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="h-full overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-6 py-4">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-6 py-4">
         <div className="flex items-center gap-3">
           <div className={cn("flex size-8 items-center justify-center rounded-lg bg-muted", color)}>
             <Icon className="size-5" />
@@ -277,7 +277,7 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
         </Button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+      <div className="p-6">
         <div className="space-y-6">
           {/* Connected Account Card */}
           {!accountsLoading && (
