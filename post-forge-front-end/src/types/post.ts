@@ -114,12 +114,19 @@ export type PlatformPost = {
   text: string | null
   timestamp: string
   permalink: string
+  mediaType: string | null
+  mediaUrl: string | null
+  thumbnailUrl: string | null
 }
 
 export type PlatformPostsResponse = {
   posts: Array<PlatformPost>
   nextCursor: string | null
   hasNextPage: boolean
+}
+
+export type GetThreadsCalendarPostsResponse = {
+  threadsCalendarPosts: Array<PlatformPost>
 }
 
 export type GetThreadsPostsResponse = {

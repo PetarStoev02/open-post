@@ -7,6 +7,8 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { toast } from "sonner"
+
 import type { CreatePostInput, Platform } from "@/types/post"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
@@ -21,8 +23,11 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { MediaUpload } from "@/components/media-upload"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { CREATE_POST } from "@/graphql/operations/posts"
 import { platformIcons, platformLabels } from "@/lib/platforms"
@@ -53,16 +58,20 @@ export const CreatePostSheet = () => {
   const [hashtagInput, setHashtagInput] = React.useState("")
   const [mentions, setMentions] = React.useState<Array<string>>([])
   const [mentionInput, setMentionInput] = React.useState("")
+  const [mediaUrls, setMediaUrls] = React.useState<Array<string>>([])
   const [errors, setErrors] = React.useState<Record<string, string>>({})
+  const [postMode, setPostMode] = React.useState<"schedule" | "now" | "draft">("schedule")
 
   // Apollo mutation
   const [createPost, { loading }] = useMutation(CREATE_POST, {
     refetchQueries: "active",
     onCompleted: () => {
+      toast.success("Post created")
       closeSheet()
       resetForm()
     },
     onError: (error: Error) => {
+      toast.error("Failed to create post")
       setErrors({ submit: error.message })
     },
   })
@@ -95,9 +104,11 @@ export const CreatePostSheet = () => {
     setScheduledTime("09:00")
     setHashtags([])
     setMentions([])
+    setMediaUrls([])
     setErrors({})
     setHashtagInput("")
     setMentionInput("")
+    setPostMode("schedule")
   }
 
   const togglePlatform = (platform: Platform) => {
@@ -165,21 +176,31 @@ export const CreatePostSheet = () => {
   const handleSubmit = async (asDraft: boolean = false) => {
     if (!validateForm()) return
 
+    const pad = (n: number) => n.toString().padStart(2, '0')
     let scheduledAt: string | undefined
-    if (!asDraft && scheduledDate) {
+    let status: CreatePostInput["status"] = "DRAFT"
+
+    if (asDraft) {
+      status = "DRAFT"
+    } else if (postMode === "now") {
+      // Set scheduled time to now for immediate publishing
+      const now = new Date()
+      scheduledAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:00`
+      status = "SCHEDULED"
+    } else if (scheduledDate) {
       const [hours, minutes] = scheduledTime.split(":").map(Number)
       const date = new Date(scheduledDate)
       date.setHours(hours, minutes, 0, 0)
-      // Format as Y-m-d H:i:s for Lighthouse DateTime scalar
-      const pad = (n: number) => n.toString().padStart(2, '0')
       scheduledAt = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(hours)}:${pad(minutes)}:00`
+      status = "SCHEDULED"
     }
 
     const input: CreatePostInput = {
       content: content.trim(),
       platforms: selectedPlatforms,
-      status: asDraft ? "DRAFT" : "SCHEDULED",
+      status,
       scheduledAt,
+      mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
       hashtags,
       mentions,
     }
@@ -202,8 +223,8 @@ export const CreatePostSheet = () => {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <div className="space-y-5">
+        <ScrollArea className="flex-1">
+          <div className="space-y-5 px-6 py-4">
             {/* Platform Selection */}
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">
@@ -257,12 +278,21 @@ export const CreatePostSheet = () => {
                 rows={5}
                 className={cn("resize-none", isOverLimit && "border-destructive")}
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span className={cn(isOverLimit && "text-destructive")}>
-                  {charCount} / {charLimit}
-                </span>
-                {selectedPlatforms.length > 1 && (
-                  <span>Limit for smallest platform</span>
+              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                {selectedPlatforms.length > 1 ? (
+                  selectedPlatforms.map((p) => {
+                    const max = PLATFORM_MAX_CHARS[p]
+                    const over = charCount > max
+                    return (
+                      <span key={p} className={cn(over && "text-destructive")}>
+                        {platformLabels[p]}: {charCount}/{max}
+                      </span>
+                    )
+                  })
+                ) : (
+                  <span className={cn(isOverLimit && "text-destructive")}>
+                    {charCount} / {charLimit}
+                  </span>
                 )}
               </div>
               {errors.content && (
@@ -270,35 +300,60 @@ export const CreatePostSheet = () => {
               )}
             </div>
 
-            {/* Schedule */}
+            {/* Media */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground">SCHEDULE</Label>
-              <div className="flex gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="flex-1 justify-start gap-2 font-normal">
-                      <CalendarIcon className="size-4 text-muted-foreground" />
-                      {scheduledDate
-                        ? scheduledDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                        : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={scheduledDate}
-                      onSelect={setScheduledDate}
-                      disabled={(date) => date < new Date()}
+              <Label className="text-xs font-medium text-muted-foreground">MEDIA</Label>
+              <MediaUpload mediaUrls={mediaUrls} onChange={setMediaUrls} />
+            </div>
+
+            {/* Post Mode */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground">WHEN TO POST</Label>
+              <Tabs value={postMode} onValueChange={(v) => setPostMode(v as "schedule" | "now" | "draft")}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="schedule" className="flex-1">Schedule</TabsTrigger>
+                  <TabsTrigger value="now" className="flex-1">Post Now</TabsTrigger>
+                  <TabsTrigger value="draft" className="flex-1">Save Draft</TabsTrigger>
+                </TabsList>
+                <TabsContent value="schedule">
+                  <div className="flex gap-2 pt-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex-1 justify-start gap-2 font-normal">
+                          <CalendarIcon className="size-4 text-muted-foreground" />
+                          {scheduledDate
+                            ? scheduledDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                            : "Select date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={scheduledDate}
+                          onSelect={setScheduledDate}
+                          disabled={(date) => date < new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <Input
+                      type="time"
+                      value={scheduledTime}
+                      onChange={(e) => setScheduledTime(e.target.value)}
+                      className="w-28"
                     />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  type="time"
-                  value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
-                  className="w-28"
-                />
-              </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="now">
+                  <p className="pt-2 text-xs text-muted-foreground">
+                    Your post will be published immediately after creation.
+                  </p>
+                </TabsContent>
+                <TabsContent value="draft">
+                  <p className="pt-2 text-xs text-muted-foreground">
+                    Save as draft without scheduling. You can schedule it later.
+                  </p>
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* Hashtags */}
@@ -385,30 +440,20 @@ export const CreatePostSheet = () => {
               )}
             </div>
           </div>
-        </div>
+        </ScrollArea>
 
         <SheetFooter className="border-t px-6 py-4">
           {errors.submit && (
             <p className="mb-2 w-full text-sm text-destructive">{errors.submit}</p>
           )}
-          <div className="flex w-full gap-2">
-            <LoadingButton
-              variant="outline"
-              onClick={() => handleSubmit(true)}
-              loading={loading}
-              className="flex-1"
-            >
-              Save Draft
-            </LoadingButton>
-            <LoadingButton
-              onClick={() => handleSubmit(false)}
-              disabled={!scheduledDate}
-              loading={loading}
-              className="flex-1"
-            >
-              Schedule
-            </LoadingButton>
-          </div>
+          <LoadingButton
+            onClick={() => handleSubmit(postMode === "draft")}
+            disabled={postMode === "schedule" && !scheduledDate}
+            loading={loading}
+            className="w-full"
+          >
+            {postMode === "schedule" ? "Schedule Post" : postMode === "now" ? "Publish Now" : "Save Draft"}
+          </LoadingButton>
         </SheetFooter>
       </SheetContent>
     </Sheet>

@@ -1,2 +1,5 @@
+export { AccountsSkeleton } from "./accounts-skeleton"
 export { CalendarSkeleton } from "./calendar-skeleton"
 export { DashboardSkeleton } from "./dashboard-skeleton"
+export { PlatformPageSkeleton } from "./platform-page-skeleton"
+export { PostCardSkeleton } from "./post-card-skeleton"

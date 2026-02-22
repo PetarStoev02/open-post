@@ -13,6 +13,8 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { toast } from "sonner"
+
 import type { CreatePostInput, Platform, Post, UpdatePostInput } from "@/types/post"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
@@ -45,11 +47,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { MediaUpload } from "@/components/media-upload"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { CREATE_POST, DELETE_POST, UPDATE_POST } from "@/graphql/operations/posts"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
+
+const PLATFORM_MAX_CHARS: Record<Platform, number> = {
+  TWITTER: 280,
+  LINKEDIN: 3000,
+  THREADS: 500,
+}
 
 const statusStyles: Record<string, { label: string; className: string }> = {
   DRAFT: { label: "Draft", className: "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200" },
@@ -93,6 +103,7 @@ export const PostDetailSheet = () => {
   const [editMentions, setEditMentions] = React.useState<Array<string>>([])
   const [hashtagInput, setHashtagInput] = React.useState("")
   const [mentionInput, setMentionInput] = React.useState("")
+  const [editMediaUrls, setEditMediaUrls] = React.useState<Array<string>>([])
   const [editDate, setEditDate] = React.useState<Date | undefined>()
   const [editTime, setEditTime] = React.useState("09:00")
 
@@ -104,25 +115,34 @@ export const PostDetailSheet = () => {
   const [deletePost, { loading: deleteLoading }] = useMutation(DELETE_POST, {
     refetchQueries: "active",
     onCompleted: () => {
+      toast.success("Post deleted")
       setDeleteDialogOpen(false)
       closePost()
+    },
+    onError: () => {
+      toast.error("Failed to delete post")
     },
   })
 
   const [updatePost, { loading: updateLoading }] = useMutation(UPDATE_POST, {
     refetchQueries: "active",
     onCompleted: () => {
+      toast.success("Post updated")
       setActionMode("view")
+    },
+    onError: () => {
+      toast.error("Failed to update post")
     },
   })
 
   const [duplicatePost, { loading: duplicateLoading }] = useMutation(CREATE_POST, {
     refetchQueries: "active",
     onCompleted: () => {
+      toast.success("Post duplicated")
       closePost()
     },
-    onError: (error) => {
-      console.error("Duplicate post error:", error)
+    onError: () => {
+      toast.error("Failed to duplicate post")
     },
   })
 
@@ -133,6 +153,7 @@ export const PostDetailSheet = () => {
       setEditPlatforms(selectedPost.platforms)
       setEditHashtags(selectedPost.hashtags || [])
       setEditMentions(selectedPost.mentions || [])
+      setEditMediaUrls(selectedPost.mediaUrls || [])
       if (selectedPost.scheduledAt) {
         const { date, time } = formatDateForInput(selectedPost.scheduledAt)
         setEditDate(date)
@@ -192,6 +213,7 @@ export const PostDetailSheet = () => {
       platforms: editPlatforms,
       hashtags: editHashtags,
       mentions: editMentions,
+      mediaUrls: editMediaUrls,
       scheduledAt,
     }
     await updatePost({ variables: { id: selectedPost.id, input } })
@@ -316,43 +338,47 @@ export const PostDetailSheet = () => {
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            {actionMode === "view" && (
-              <ViewMode post={selectedPost} />
-            )}
+          <ScrollArea className="flex-1">
+            <div className="px-6 py-4">
+              {actionMode === "view" && (
+                <ViewMode post={selectedPost} />
+              )}
 
-            {actionMode === "edit" && (
-              <EditMode
-                content={editContent}
-                setContent={setEditContent}
-                platforms={editPlatforms}
-                togglePlatform={togglePlatform}
-                scheduledDate={editDate}
-                setScheduledDate={setEditDate}
-                scheduledTime={editTime}
-                setScheduledTime={setEditTime}
-                hashtags={editHashtags}
-                setHashtags={setEditHashtags}
-                hashtagInput={hashtagInput}
-                setHashtagInput={setHashtagInput}
-                addHashtag={addHashtag}
-                mentions={editMentions}
-                setMentions={setEditMentions}
-                mentionInput={mentionInput}
-                setMentionInput={setMentionInput}
-                addMention={addMention}
-              />
-            )}
+              {actionMode === "edit" && (
+                <EditMode
+                  content={editContent}
+                  setContent={setEditContent}
+                  platforms={editPlatforms}
+                  togglePlatform={togglePlatform}
+                  scheduledDate={editDate}
+                  setScheduledDate={setEditDate}
+                  scheduledTime={editTime}
+                  setScheduledTime={setEditTime}
+                  hashtags={editHashtags}
+                  setHashtags={setEditHashtags}
+                  hashtagInput={hashtagInput}
+                  setHashtagInput={setHashtagInput}
+                  addHashtag={addHashtag}
+                  mentions={editMentions}
+                  setMentions={setEditMentions}
+                  mentionInput={mentionInput}
+                  setMentionInput={setMentionInput}
+                  addMention={addMention}
+                  mediaUrls={editMediaUrls}
+                  setMediaUrls={setEditMediaUrls}
+                />
+              )}
 
-            {actionMode === "reschedule" && (
-              <RescheduleMode
-                date={rescheduleDate}
-                setDate={setRescheduleDate}
-                time={rescheduleTime}
-                setTime={setRescheduleTime}
-              />
-            )}
-          </div>
+              {actionMode === "reschedule" && (
+                <RescheduleMode
+                  date={rescheduleDate}
+                  setDate={setRescheduleDate}
+                  time={rescheduleTime}
+                  setTime={setRescheduleTime}
+                />
+              )}
+            </div>
+          </ScrollArea>
 
           <SheetFooter className="border-t px-6 py-4">
             {actionMode === "view" && (
@@ -491,6 +517,24 @@ const ViewMode = ({ post }: { post: Post }) => {
         <p className="mt-2 whitespace-pre-wrap text-sm">{post.content}</p>
       </div>
 
+      {/* Media */}
+      {post.mediaUrls && post.mediaUrls.length > 0 && (
+        <div>
+          <Label className="text-xs font-medium text-muted-foreground">MEDIA</Label>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {post.mediaUrls.map((url) => (
+              <div key={url} className="overflow-hidden rounded-md border bg-muted">
+                {url.match(/\.(mp4|mov)(\?|$)/i) ? (
+                  <video src={url} className="aspect-square w-full object-cover" muted controls />
+                ) : (
+                  <img src={url} alt="" className="aspect-square w-full object-cover" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Schedule */}
       {post.scheduledAt && (
         <div>
@@ -562,6 +606,8 @@ type EditModeProps = {
   mentionInput: string
   setMentionInput: (input: string) => void
   addMention: () => void
+  mediaUrls: Array<string>
+  setMediaUrls: (urls: Array<string>) => void
 }
 
 const EditMode = ({
@@ -583,6 +629,8 @@ const EditMode = ({
   mentionInput,
   setMentionInput,
   addMention,
+  mediaUrls,
+  setMediaUrls,
 }: EditModeProps) => {
   const PLATFORM_OPTIONS: Array<{ id: Platform; label: string; icon: React.ComponentType<{ className?: string }> }> = (
     Object.keys(platformIcons) as Array<Platform>
@@ -620,8 +668,28 @@ const EditMode = ({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={5}
-          className="resize-none"
+          className={cn(
+            "resize-none",
+            platforms.some((p) => content.length > (PLATFORM_MAX_CHARS[p] ?? 280)) && "border-destructive"
+          )}
         />
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          {platforms.map((p) => {
+            const max = PLATFORM_MAX_CHARS[p] ?? 280
+            const over = content.length > max
+            return (
+              <span key={p} className={cn(over && "text-destructive")}>
+                {platformLabels[p]}: {content.length}/{max}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Media */}
+      <div className="space-y-2">
+        <Label className="text-xs font-medium text-muted-foreground">MEDIA</Label>
+        <MediaUpload mediaUrls={mediaUrls} onChange={setMediaUrls} />
       </div>
 
       {/* Schedule */}

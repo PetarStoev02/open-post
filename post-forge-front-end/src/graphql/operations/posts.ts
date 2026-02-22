@@ -115,6 +115,20 @@ export const GET_DASHBOARD_STATS = gql`
   ${POST_FRAGMENT}
 `;
 
+export const GET_THREADS_CALENDAR_POSTS = gql`
+  query GetThreadsCalendarPosts($startDate: Date!, $endDate: Date!) {
+    threadsCalendarPosts(startDate: $startDate, endDate: $endDate) {
+      platformPostId
+      text
+      timestamp
+      permalink
+      mediaType
+      mediaUrl
+      thumbnailUrl
+    }
+  }
+`;
+
 export const GET_THREADS_POSTS = gql`
   query GetThreadsPosts($limit: Int, $after: String) {
     threadsPosts(limit: $limit, after: $after) {
@@ -123,6 +137,9 @@ export const GET_THREADS_POSTS = gql`
         text
         timestamp
         permalink
+        mediaType
+        mediaUrl
+        thumbnailUrl
       }
       nextCursor
       hasNextPage

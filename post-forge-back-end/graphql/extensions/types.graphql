@@ -61,6 +61,9 @@ type PlatformPost {
     text: String
     timestamp: String!
     permalink: String!
+    mediaType: String
+    mediaUrl: String
+    thumbnailUrl: String
 }
 
 "Paginated response for platform posts"

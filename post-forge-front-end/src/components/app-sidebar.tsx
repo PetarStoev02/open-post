@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Link, useLocation } from "@tanstack/react-router"
+import { useQuery } from "@apollo/client/react"
 import {
   BarChart3Icon,
   CalendarIcon,
@@ -14,8 +15,12 @@ import {
   UsersIcon,
 } from "lucide-react"
 
-import { NavUser } from "@/components/nav-user"
+import type { Platform } from "@/types/post"
+import { AccountSwitcher } from "@/components/account-switcher"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCreatePost } from "@/contexts/create-post-context"
+import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
+import { platformLabels } from "@/lib/platforms"
 import {
   Sidebar,
   SidebarContent,
@@ -30,14 +35,6 @@ import {
   SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "", // No image: AvatarFallback (initials) is shown
-  },
-}
 
 const mainNavItems = [
   {
@@ -67,32 +64,41 @@ const mainNavItems = [
   },
 ]
 
-const platformItems = [
-  {
-    title: "Threads",
-    url: "/platforms/threads",
-    icon: MessageCircle,
-  },
-  {
-    title: "Twitter / X",
-    url: "/platforms/twitter",
-    icon: TwitterIcon,
-  },
-  {
-    title: "LinkedIn",
-    url: "/platforms/linkedin",
-    icon: LinkedinIcon,
-  },
+type PlatformDef = {
+  platform: Platform
+  title: string
+  url: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const platformDefs: Array<PlatformDef> = [
+  { platform: "THREADS", title: "Threads", url: "/platforms/threads", icon: MessageCircle },
+  { platform: "TWITTER", title: "Twitter / X", url: "/platforms/twitter", icon: TwitterIcon },
+  { platform: "LINKEDIN", title: "LinkedIn", url: "/platforms/linkedin", icon: LinkedinIcon },
 ]
+
+type SocialAccountData = {
+  socialAccounts: Array<{
+    id: string
+    platform: string
+    metadata?: { name?: string; username?: string; avatar?: string } | null
+  }>
+}
 
 export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   const location = useLocation()
   const { openSheet } = useCreatePost()
+  const { data: accountsData } = useQuery<SocialAccountData>(GET_SOCIAL_ACCOUNTS)
+
+  const accounts = accountsData?.socialAccounts ?? []
+
+  const getAccountForPlatform = (platform: Platform) =>
+    accounts.find((a) => a.platform === platform) ?? null
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="h-16 border-b border-sidebar-border">
-        <NavUser user={data.user} />
+        <AccountSwitcher accounts={accounts} />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -119,19 +125,38 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
           <SidebarGroupLabel>Platforms</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {platformItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === item.url}
-                  >
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {platformDefs.map((def) => {
+                const account = getAccountForPlatform(def.platform)
+                return (
+                  <SidebarMenuItem key={def.platform}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname === def.url}
+                    >
+                      <Link to={def.url} className="flex items-center gap-2">
+                        {account?.metadata?.avatar ? (
+                          <Avatar className="size-4">
+                            <AvatarImage src={account.metadata.avatar} alt={def.title} />
+                            <AvatarFallback className="text-[8px]">
+                              <def.icon className="size-3" />
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <def.icon className="size-4" />
+                        )}
+                        <span>
+                          {account?.metadata?.name ?? account?.metadata?.username ?? def.title}
+                        </span>
+                        {!account && (
+                          <span className="ml-auto text-[10px] text-muted-foreground">
+                            not connected
+                          </span>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useMutation, useQuery } from "@apollo/client/react"
 import { ChevronDownIcon, ChevronRightIcon, LinkedinIcon, MessageCircle, PlusIcon, RefreshCwIcon, Settings2Icon, Trash2Icon, UsersIcon, XIcon } from "lucide-react"
 import type { Platform } from "@/types/post"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +26,7 @@ import {
 import { BACKEND_ORIGIN } from "@/lib/config"
 import { platformLabels } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
+import { AccountsSkeleton } from "@/components/skeletons"
 import {
   Collapsible,
   CollapsibleContent,
@@ -87,7 +89,7 @@ const AccountsPage = () => {
     id: string
     platform: Platform
     platformUserId: string
-    metadata?: { name?: string; username?: string } | null
+    metadata?: { name?: string; username?: string; avatar?: string } | null
     needsReconnect?: boolean
   }>
   const oauthCredentials = oauthData?.oauthCredentials ?? []
@@ -133,11 +135,7 @@ const AccountsPage = () => {
   )
 
   if (loading) {
-    return (
-      <div className="flex h-full flex-1 items-center justify-center p-8">
-        <p className="text-sm text-muted-foreground">Loading accounts…</p>
-      </div>
-    )
+    return <AccountsSkeleton />
   }
 
   if (error) {
@@ -307,7 +305,12 @@ const AccountsPage = () => {
               <Card key={account.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="flex items-center gap-2 text-base">
-                    <Icon className="size-5" />
+                    <Avatar className="size-8">
+                      <AvatarImage src={account.metadata?.avatar ?? undefined} alt={displayName} />
+                      <AvatarFallback>
+                        <Icon className="size-4" />
+                      </AvatarFallback>
+                    </Avatar>
                     {label}
                   </CardTitle>
                 </CardHeader>

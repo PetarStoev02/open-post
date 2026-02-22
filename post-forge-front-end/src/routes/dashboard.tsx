@@ -18,6 +18,8 @@ import {
   UsersIcon,
 } from "lucide-react"
 
+import { toast } from "sonner"
+
 import type { GetDashboardStatsResponse, Post } from "@/types/post"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { platformColors, platformIcons } from "@/lib/platforms"
 import { cn } from "@/lib/utils"
 import { DashboardSkeleton } from "@/components/skeletons"
@@ -145,14 +148,24 @@ const ScheduledQueueItem = ({ post, onEdit, onDelete }: ScheduledQueueItemProps)
         <p className="truncate text-sm text-muted-foreground">{post.content}</p>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="size-8" onClick={onEdit}>
-          <PencilIcon className="size-4" />
-          <span className="sr-only">Edit post</span>
-        </Button>
-        <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={onDelete}>
-          <Trash2Icon className="size-4" />
-          <span className="sr-only">Delete post</span>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8" onClick={onEdit}>
+              <PencilIcon className="size-4" />
+              <span className="sr-only">Edit</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={onDelete}>
+              <Trash2Icon className="size-4" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Delete</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   )
@@ -237,8 +250,12 @@ const DashboardPage = () => {
   const [deletePost, { loading: deleteLoading }] = useMutation(DELETE_POST, {
     refetchQueries: "active",
     onCompleted: () => {
+      toast.success("Post deleted")
       setDeleteDialogOpen(false)
       setPostToDelete(null)
+    },
+    onError: () => {
+      toast.error("Failed to delete post")
     },
   })
 

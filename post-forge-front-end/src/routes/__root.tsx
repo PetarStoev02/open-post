@@ -8,10 +8,13 @@ import appCss from '../styles.css?url'
 import { apolloClient } from '@/lib/apollo-client'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { CreatePostProvider } from '@/contexts/create-post-context'
 import { CreatePostSheet } from '@/components/create-post-sheet'
 import { PostActionsProvider } from '@/contexts/post-actions-context'
 import { PostDetailSheet } from '@/components/post-detail-sheet'
+import { CommandPalette } from '@/components/command-palette'
 import { PageLoader } from '@/components/ui/page-loader'
 import { Button } from '@/components/ui/button'
 
@@ -40,18 +43,22 @@ const RouteErrorComponent = ({ error }: { error: Error }) => (
 const RootLayout = () => {
   return (
     <ApolloProvider client={apolloClient}>
-      <CreatePostProvider>
-        <PostActionsProvider>
-          <SidebarProvider className="h-full">
-            <AppSidebar />
-            <SidebarInset className="h-full">
-              <Outlet />
-            </SidebarInset>
-          </SidebarProvider>
-          <CreatePostSheet />
-          <PostDetailSheet />
-        </PostActionsProvider>
-      </CreatePostProvider>
+      <TooltipProvider>
+        <CreatePostProvider>
+          <PostActionsProvider>
+            <SidebarProvider className="h-full">
+              <AppSidebar />
+              <SidebarInset className="h-full">
+                <Outlet />
+              </SidebarInset>
+            </SidebarProvider>
+            <CreatePostSheet />
+            <PostDetailSheet />
+            <CommandPalette />
+            <Toaster />
+          </PostActionsProvider>
+        </CreatePostProvider>
+      </TooltipProvider>
     </ApolloProvider>
   )
 }
