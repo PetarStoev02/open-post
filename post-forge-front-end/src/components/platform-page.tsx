@@ -41,6 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { EmptyState } from "@/components/empty-state"
@@ -324,29 +325,42 @@ export const PlatformPage = ({ platform }: PlatformPageProps) => {
           {/* Connected Account Card */}
           {!accountsLoading && (
             connectedAccount ? (
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-                  <Avatar className="size-10">
-                    <AvatarImage src={connectedAccount.metadata?.avatar ?? undefined} alt={connectedAccount.metadata?.name ?? label} />
-                    <AvatarFallback className={cn("bg-muted", color)}>
-                      <Icon className="size-5" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-base">
-                      {connectedAccount.metadata?.name ?? (connectedAccount.metadata?.username ? `@${connectedAccount.metadata.username}` : label)}
-                    </CardTitle>
-                    <CardDescription>
-                      {connectedAccount.metadata?.name && connectedAccount.metadata?.username
-                        ? `@${connectedAccount.metadata.username}`
-                        : "Connected account"}
-                    </CardDescription>
-                  </div>
-                  {connectedAccount.needsReconnect && (
-                    <Badge variant="destructive" className="ml-auto">Needs Reconnect</Badge>
-                  )}
-                </CardHeader>
-              </Card>
+              <>
+                <Card>
+                  <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
+                    <Avatar className="size-10">
+                      <AvatarImage src={connectedAccount.metadata?.avatar ?? undefined} alt={connectedAccount.metadata?.name ?? label} />
+                      <AvatarFallback className={cn("bg-muted", color)}>
+                        <Icon className="size-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-base">
+                        {connectedAccount.metadata?.name ?? (connectedAccount.metadata?.username ? `@${connectedAccount.metadata.username}` : label)}
+                      </CardTitle>
+                      <CardDescription>
+                        {connectedAccount.metadata?.name && connectedAccount.metadata?.username
+                          ? `@${connectedAccount.metadata.username}`
+                          : "Connected account"}
+                      </CardDescription>
+                    </div>
+                    {connectedAccount.needsReconnect && (
+                      <Badge variant="destructive" className="ml-auto">Needs Reconnect</Badge>
+                    )}
+                  </CardHeader>
+                </Card>
+                {connectedAccount.needsReconnect && (
+                  <Alert variant="destructive">
+                    <AlertTitle>Token Expired</AlertTitle>
+                    <AlertDescription className="flex items-center justify-between">
+                      <span>Your {label} connection has expired. Reconnect to continue publishing.</span>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/accounts">Reconnect</Link>
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </>
             ) : (
               <Card className="border-dashed">
                 <CardContent className="flex items-center justify-between py-4">
