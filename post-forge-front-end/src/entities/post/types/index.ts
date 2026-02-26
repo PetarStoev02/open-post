@@ -1,5 +1,6 @@
-export type { Platform } from '@/entities/social-account/types'
 import type { Platform } from '@/entities/social-account/types'
+
+export type { Platform }
 
 export type PostStatus = 'DRAFT' | 'SCHEDULED' | 'PENDING' | 'PUBLISHED' | 'CANCELLED' | 'FAILED';
 

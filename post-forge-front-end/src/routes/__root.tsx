@@ -4,7 +4,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { ApolloProvider } from '@apollo/client/react'
 import { AlertCircleIcon } from 'lucide-react'
 
-import appCss from '../styles.css?url'
+import appCss from '../app/styles.css?url'
 import { apolloClient } from '@/shared/lib/apollo-client'
 import { AppSidebar } from '@/widgets/app-sidebar/ui/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/shared/ui/sidebar'
