@@ -124,4 +124,12 @@ final readonly class EloquentPostRepository implements PostRepository
             ->orderBy('scheduled_at', 'asc')
             ->get();
     }
+
+    public function findReadyToPublish(): Collection
+    {
+        return Post::query()
+            ->readyToPublish()
+            ->orderBy('scheduled_at', 'asc')
+            ->get();
+    }
 }

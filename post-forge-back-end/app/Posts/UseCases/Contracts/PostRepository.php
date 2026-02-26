@@ -36,4 +36,6 @@ interface PostRepository
     public function getPostDatesForMonth(int $year, int $month): array;
 
     public function getPostsForDate(string $date): Collection;
+
+    public function findReadyToPublish(): Collection;
 }
