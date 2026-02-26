@@ -13,15 +13,15 @@ import {
   TrendingUpIcon,
 } from "lucide-react"
 
-import type { GetDashboardStatsResponse, GetThreadsPostInsightsResponse, GetThreadsPostsResponse, PlatformPost } from "@/types/post"
-import type { ChartConfig } from "@/components/ui/chart"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { GetDashboardStatsResponse, GetThreadsPostInsightsResponse, GetThreadsPostsResponse, PlatformPost } from "@/entities/post/types"
+import type { ChartConfig } from "@/shared/ui/chart"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/shared/ui/chart"
 import {
   Table,
   TableBody,
@@ -29,10 +29,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { EmptyState } from "@/components/empty-state"
-import { GET_DASHBOARD_STATS, GET_THREADS_POSTS, GET_THREADS_POST_INSIGHTS } from "@/graphql/operations/posts"
-import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
+} from "@/shared/ui/table"
+import { EmptyState } from "@/shared/ui-patterns/empty-state"
+import { GET_DASHBOARD_STATS, GET_THREADS_POSTS, GET_THREADS_POST_INSIGHTS } from "@/entities/post/api/posts"
+import { GET_SOCIAL_ACCOUNTS } from "@/entities/social-account/api/social-accounts"
 
 const statusChartConfig = {
   draft: { label: "Draft", color: "#94a3b8" },

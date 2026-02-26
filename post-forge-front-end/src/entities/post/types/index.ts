@@ -1,0 +1,142 @@
+import type { Platform } from '@/entities/social-account/types'
+
+export type { Platform }
+
+export type PostStatus = 'DRAFT' | 'SCHEDULED' | 'PENDING' | 'PUBLISHED' | 'CANCELLED' | 'FAILED';
+
+export type LinkPreview = {
+  url: string
+  title?: string | null
+  description?: string | null
+  image?: string | null
+}
+
+export type Post = {
+  id: string
+  content: string
+  platforms: Array<Platform>
+  status: PostStatus
+  errorMessage?: string | null
+  scheduledAt?: string | null
+  mediaUrls: Array<string>
+  hashtags: Array<string>
+  mentions: Array<string>
+  linkPreview?: LinkPreview | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreatePostInput = {
+  content: string
+  platforms: Array<Platform>
+  status?: PostStatus
+  scheduledAt?: string
+  mediaUrls?: Array<string>
+  hashtags?: Array<string>
+  mentions?: Array<string>
+  linkPreview?: {
+    url: string
+    title?: string
+    description?: string
+    image?: string
+  }
+}
+
+export type UpdatePostInput = {
+  content?: string
+  platforms?: Array<Platform>
+  status?: PostStatus
+  scheduledAt?: string
+  mediaUrls?: Array<string>
+  hashtags?: Array<string>
+  mentions?: Array<string>
+  linkPreview?: {
+    url: string
+    title?: string
+    description?: string
+    image?: string
+  }
+}
+
+// Query response types
+export type GetCalendarPostsResponse = {
+  calendarPosts: Array<Post>
+}
+
+export type GetPostsResponse = {
+  posts: Array<Post>
+}
+
+export type GetPostResponse = {
+  post: Post | null
+}
+
+// Threads insights types
+export type ThreadsPostInsights = {
+  views: number
+  likes: number
+  replies: number
+  reposts: number
+  quotes: number
+}
+
+export type ThreadsEngagement = {
+  views: number
+  likes: number
+  replies: number
+  reposts: number
+  quotes: number
+  totalEngagements: number
+  engagementRate: number | null
+}
+
+// Dashboard types
+export type DashboardStats = {
+  totalPostsCount: number
+  totalPostsThisMonth: number
+  totalPostsLastMonth: number
+  scheduledPostsCount: number
+  publishedPostsCount: number
+  draftPostsCount: number
+  upcomingPosts: Array<Post>
+  scheduledDates: Array<string>
+  postDates: Array<string>
+  threadsEngagement: ThreadsEngagement | null
+}
+
+export type GetDashboardStatsResponse = {
+  dashboardStats: DashboardStats
+}
+
+export type GetPostsForDateResponse = {
+  postsForDate: Array<Post>
+}
+
+// Platform posts (fetched directly from platform API)
+export type PlatformPost = {
+  platformPostId: string
+  text: string | null
+  timestamp: string
+  permalink: string
+  mediaType: string | null
+  mediaUrl: string | null
+  thumbnailUrl: string | null
+}
+
+export type PlatformPostsResponse = {
+  posts: Array<PlatformPost>
+  nextCursor: string | null
+  hasNextPage: boolean
+}
+
+export type GetThreadsCalendarPostsResponse = {
+  threadsCalendarPosts: Array<PlatformPost>
+}
+
+export type GetThreadsPostsResponse = {
+  threadsPosts: PlatformPostsResponse
+}
+
+export type GetThreadsPostInsightsResponse = {
+  threadsPostInsights: ThreadsPostInsights | null
+}
