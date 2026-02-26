@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Publishing\IO\Publishers\ConcretePlatformPublisherRegistry;
+use App\Publishing\IO\Publishers\ThreadsPublisher;
+use App\Publishing\IO\Publishers\TwitterPublisher;
+use App\Publishing\UseCases\Contracts\PlatformPublisherRegistry;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
@@ -37,8 +41,7 @@ class AppServiceProvider extends ServiceProvider
         // SocialAccounts Domain
         \App\SocialAccounts\UseCases\Contracts\SocialAccountRepository::class => \App\SocialAccounts\IO\DataAccess\EloquentSocialAccountRepository::class,
 
-        // Publishing Domain
-        // \App\Publishing\UseCases\Contracts\ScheduledPostRepository::class => \App\Publishing\IO\DataAccess\EloquentScheduledPostRepository::class,
+        // Publishing Domain (registry binding is in register())
     ];
 
     /**
@@ -46,7 +49,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(PlatformPublisherRegistry::class, function ($app) {
+            return new ConcretePlatformPublisherRegistry([
+                'threads' => $app->make(ThreadsPublisher::class),
+                'twitter' => $app->make(TwitterPublisher::class),
+            ]);
+        });
     }
 
     /**
