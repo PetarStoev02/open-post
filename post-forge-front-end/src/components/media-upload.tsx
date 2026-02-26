@@ -4,10 +4,10 @@ import * as React from "react"
 import { ImagePlusIcon, Loader2Icon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { cn } from "@/lib/utils"
-import { uploadMedia } from "@/lib/upload-media"
+import { Button } from "@/shared/ui/button"
+import { Progress } from "@/shared/ui/progress"
+import { cn } from "@/shared/lib/utils"
+import { uploadMedia } from "@/shared/lib/upload-media"
 
 type MediaUploadProps = {
   mediaUrls: Array<string>

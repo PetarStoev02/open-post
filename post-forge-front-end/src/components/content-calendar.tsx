@@ -26,24 +26,24 @@ import { toast } from "sonner"
 import type {DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 
 import type { Platform as APIPlatform, PostStatus as APIPostStatus, CreatePostInput, GetCalendarPostsResponse, GetThreadsCalendarPostsResponse, PlatformPost, Post } from "@/types/post"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+} from "@/shared/ui/dropdown-menu"
+import { ToggleGroup, ToggleGroupItem } from "@/shared/ui/toggle-group"
 import { platformColors as sharedPlatformColors, platformIcons as sharedPlatformIcons } from "@/lib/platforms"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { useCalendarStore } from "@/stores/calendar-store"
 import { CREATE_POST, GET_CALENDAR_POSTS, GET_THREADS_CALENDAR_POSTS, UPDATE_POST } from "@/graphql/operations/posts"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
-import { LoadingIndicator } from "@/components/ui/loading-indicator"
-import { CalendarSkeleton } from "@/components/skeletons"
+import { LoadingIndicator } from "@/shared/ui/loading-indicator"
+import { CalendarSkeleton } from "@/shared/ui-patterns/skeletons"
 
 type UpdatePostResponse = {
   updatePost: Post

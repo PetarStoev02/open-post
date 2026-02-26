@@ -17,17 +17,17 @@ import {
 import { toast } from "sonner"
 
 import type { CreatePostInput, Platform, Post, UpdatePostInput } from "@/types/post"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert"
+import { Button } from "@/shared/ui/button"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import { Badge } from "@/shared/ui/badge"
 import {
   Sheet,
   SheetContent,
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet"
+} from "@/shared/ui/sheet"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,27 +37,27 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/shared/ui/alert-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+} from "@/shared/ui/dropdown-menu"
+import { Calendar } from "@/shared/ui/calendar"
+import { Input } from "@/shared/ui/input"
+import { Label } from "@/shared/ui/label"
+import { Textarea } from "@/shared/ui/textarea"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover"
+import { ScrollArea } from "@/shared/ui/scroll-area"
+import { Separator } from "@/shared/ui/separator"
 import { MediaUpload } from "@/components/media-upload"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { CREATE_POST, DELETE_POST, UPDATE_POST } from "@/graphql/operations/posts"
 import { buildScheduledAt, formatDateForInput, formatDateTime } from "@/lib/format-date"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { statusStyles } from "@/lib/post-status"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 
 const PLATFORM_MAX_CHARS: Record<Platform, number> = {
   TWITTER: 280,

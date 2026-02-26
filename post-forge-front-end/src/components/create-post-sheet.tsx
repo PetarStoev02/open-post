@@ -10,28 +10,28 @@ import {
 import { toast } from "sonner"
 
 import type { CreatePostInput, Platform } from "@/types/post"
-import { Button } from "@/components/ui/button"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import { Badge } from "@/shared/ui/badge"
 import {
   Sheet,
   SheetContent,
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet"
-import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/shared/ui/sheet"
+import { Textarea } from "@/shared/ui/textarea"
+import { Calendar } from "@/shared/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover"
+import { ScrollArea } from "@/shared/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
+import { Input } from "@/shared/ui/input"
+import { Label } from "@/shared/ui/label"
 import { MediaUpload } from "@/components/media-upload"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { CREATE_POST } from "@/graphql/operations/posts"
 import { platformIcons, platformLabels } from "@/lib/platforms"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 
 const PLATFORM_MAX_CHARS: Record<Platform, number> = {
   TWITTER: 280,

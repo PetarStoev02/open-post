@@ -22,7 +22,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
+} from "@/shared/ui/command"
 import { useCreatePost } from "@/contexts/create-post-context"
 
 export const CommandPalette = () => {

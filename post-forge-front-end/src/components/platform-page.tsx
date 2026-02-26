@@ -21,16 +21,16 @@ import {
 } from "lucide-react"
 
 import type { GetPostsResponse, GetThreadsPostInsightsResponse, GetThreadsPostsResponse, Platform, PlatformPost, Post, PostStatus } from "@/types/post"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+} from "@/shared/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,27 +40,27 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+} from "@/shared/ui/alert-dialog"
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert"
+import { Checkbox } from "@/shared/ui/checkbox"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip"
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { EmptyState } from "@/components/empty-state"
-import { PostCardSkeleton } from "@/components/skeletons"
+} from "@/shared/ui/pagination"
+import { EmptyState } from "@/shared/ui-patterns/empty-state"
+import { PostCardSkeleton } from "@/shared/ui-patterns/skeletons"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { DELETE_POST, DELETE_THREADS_POST, GET_POSTS, GET_THREADS_POSTS, GET_THREADS_POST_INSIGHTS, PUBLISH_POST } from "@/graphql/operations/posts"
 import { formatScheduledTime } from "@/lib/format-date"
 import { platformColors, platformIcons, platformLabels } from "@/lib/platforms"
 import { statusStyles } from "@/lib/post-status"
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 
 type SocialAccount = {

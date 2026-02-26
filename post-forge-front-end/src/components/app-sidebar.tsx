@@ -17,7 +17,7 @@ import {
 
 import type { Platform } from "@/types/post"
 import { AccountSwitcher } from "@/components/account-switcher"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 import { platformLabels } from "@/lib/platforms"
@@ -34,7 +34,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/shared/ui/sidebar"
 
 const mainNavItems = [
   {

@@ -12,10 +12,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/shared/ui/alert-dialog"
 import { GET_SOCIAL_ACCOUNTS } from "@/graphql/operations/social-accounts"
 import { platformLabels } from "@/lib/platforms"
-import { BACKEND_ORIGIN } from "@/lib/config"
+import { BACKEND_ORIGIN } from "@/shared/lib/config"
 
 type SocialAccount = {
   id: string

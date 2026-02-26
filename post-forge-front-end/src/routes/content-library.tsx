@@ -16,8 +16,8 @@ import {
 import { toast } from "sonner"
 
 import type { GetPostsResponse, Post, PostStatus } from "@/types/post"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Badge } from "@/shared/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,22 +27,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/shared/ui/alert-dialog"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/shared/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+} from "@/shared/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
+import { ToggleGroup, ToggleGroupItem } from "@/shared/ui/toggle-group"
 import {
   Table,
   TableBody,
@@ -50,16 +50,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { EmptyState } from "@/components/empty-state"
+} from "@/shared/ui/table"
+import { EmptyState } from "@/shared/ui-patterns/empty-state"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { DELETE_POST, GET_POSTS } from "@/graphql/operations/posts"
 import { formatDate } from "@/lib/format-date"
 import { platformIcons, platformLabels } from "@/lib/platforms"
 import { statusStyles } from "@/lib/post-status"
-import { deleteMedia } from "@/lib/upload-media"
-import { cn } from "@/lib/utils"
+import { deleteMedia } from "@/shared/lib/upload-media"
+import { cn } from "@/shared/lib/utils"
 
 const statusFilterOptions: Array<{ value: string; label: string }> = [
   { value: "ALL", label: "All Statuses" },

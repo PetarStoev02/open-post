@@ -21,9 +21,9 @@ import {
 import { toast } from "sonner"
 
 import type { GetDashboardStatsResponse, Post } from "@/types/post"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/shared/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Badge } from "@/shared/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,11 +33,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+} from "@/shared/ui/alert-dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip"
 import { platformColors, platformIcons } from "@/lib/platforms"
-import { cn } from "@/lib/utils"
-import { DashboardSkeleton } from "@/components/skeletons"
+import { cn } from "@/shared/lib/utils"
+import { DashboardSkeleton } from "@/shared/ui-patterns/skeletons"
 import { useCreatePost } from "@/contexts/create-post-context"
 import { usePostActions } from "@/contexts/post-actions-context"
 import { DELETE_POST, GET_DASHBOARD_STATS } from "@/graphql/operations/posts"
